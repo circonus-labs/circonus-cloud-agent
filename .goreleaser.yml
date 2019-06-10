@@ -53,7 +53,7 @@ archive:
 
 release:
     github:
-        owner: maier
+        owner: circonus-labs
         name: circonus-cloud-agent
 
     draft: false
