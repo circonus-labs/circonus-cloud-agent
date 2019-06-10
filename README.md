@@ -2,8 +2,6 @@
 
 Current status is a **work in progress** (WIP aka active development) of a minimum viable product (MVP) which will be refined based on feedback from initial/select users.
 
-> NOTE: cannot be effectively used until the HTTPTrap check is able to accept metric names longer than 255 characters. The cloud agent only uses stream tags which, in development testing, result in many of the full metric names (with streamtags) exceeding the 255 character metric name limit imposed by the HTTPTrap check. The HTTPTrap check then sees that one, or more, names exceed this limit and rejects all metrics sent (whether using one large JSON struct or streamed [one JSON encoded metric per line]).
-
 ## Installation
 
 1. Create a directory for the install: `mkdir -p /opt/circonus/cloud-agent`
