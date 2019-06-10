@@ -1,0 +1,56 @@
+# MacOS
+.DS_Store
+
+# Vagrant
+.vagrant*/
+
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# vendored packages
+vendor*/
+
+# for permissions testing - must be created locally
+# see note internal/config/plugin_test.go
+# also, config/verifyfile_test.go
+no_access_dir/
+no_access_file
+
+# test configs
+circonus-cloud-agent.toml
+circonus-cloud-agent.yaml
+circonus-cloud-agent.json
+
+# goreleaser files
+release.sh
+dist/
+
+# plugin binaries
+*.elf
+
+# ignore local build.conf
+package/build.conf
+package/publish/*.rpm
+package/publish/*.deb
+package/publish/*.tgz
+package/rhel/circonus-cloud-agent.spec
+
+# ignore test configuration files
+etc/**/*.json
+etc/**/*.toml
+etc/**/*.yaml
+etc/**/*.disabled
+# gcp test assets
+etc/gcp_test
+
+# ignore devnotes
+NOTES.md
