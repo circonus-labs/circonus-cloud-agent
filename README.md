@@ -5,7 +5,7 @@ Current status is a **work in progress** (WIP aka active development) of a minim
 ## Installation
 
 1. Create a directory for the install: `mkdir -p /opt/circonus/cloud-agent`
-1. Download the [latest release](https://github.com/maier/circonus-cloud-agent/releases/latest) (note: this is currently a private repository)
+1. Download the [latest release](https://github.com/circonus-labs/circonus-cloud-agent/releases/latest)
 1. Unpack the release in the directory created in first step
 1. Use link(s) below for configuration information for specific service(s)
 1. Setup as a system service or run in foreground (e.g. for AWS after creating a configuration in `etc/aws.d` - `sbin/circonus-cloud-agentd --enable-aws`)
