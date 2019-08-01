@@ -1,4 +1,4 @@
-project_name: circonus-agent
+project_name: circonus-cloud-agent
 
 builds:
     -
