@@ -99,6 +99,7 @@ func New(ctx context.Context, check *circonus.Check, cfgs []AWSCollector, logger
 	cl := collectorList()
 	cc := []Collector{}
 	for _, cfg := range cfgs {
+		cfg := cfg
 		if cfg.Disabled {
 			continue // allow metrics from an entire service to be disabled
 		}

@@ -56,6 +56,7 @@ func (svc *AWSService) initInstances(confDir string) error {
 	}
 
 	for _, entry := range entries {
+		entry := entry
 		if entry.IsDir() {
 			continue
 		}
@@ -94,6 +95,7 @@ func (svc *AWSService) initInstances(confDir string) error {
 		interval := (period * 3) + (period / 2)
 
 		for _, regionConfig := range cfg.Regions {
+			regionConfig := regionConfig
 			instance := &Instance{
 				cfg:       &cfg,
 				regionCfg: &regionConfig,
