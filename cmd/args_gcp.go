@@ -23,7 +23,9 @@ func init() {
 		)
 
 		RootCmd.PersistentFlags().Bool(longOpt, gcpservice.DefaultEnabled, description)
-		viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt))
+		if err := viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt)); err != nil {
+			bindFlagError(longOpt, err)
+		}
 		viper.SetDefault(key, gcpservice.DefaultEnabled)
 	}
 
@@ -35,7 +37,9 @@ func init() {
 		)
 
 		RootCmd.PersistentFlags().String(longOpt, gcpservice.DefaultConfDir, description)
-		viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt))
+		if err := viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt)); err != nil {
+			bindFlagError(longOpt, err)
+		}
 		viper.SetDefault(key, gcpservice.DefaultConfDir)
 	}
 	{
@@ -46,7 +50,9 @@ func init() {
 		)
 
 		RootCmd.PersistentFlags().String(longOpt, "", description)
-		viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt))
+		if err := viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt)); err != nil {
+			bindFlagError(longOpt, err)
+		}
 	}
 
 }

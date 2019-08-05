@@ -31,7 +31,7 @@ var RootCmd = &cobra.Command{
 	Short: "Agent to collect metrics from cloud infrastructures",
 	Long: `The Circonus Cloud Agent collects metrics from cloud infrastructures
 and fowards them to Circonus.`,
-	PersistentPreRunE: initLogging, // change to initApp if we use a global api client (rather than having cgm handle checks/metrics)
+	PersistentPreRunE: initApp,
 	Run: func(cmd *cobra.Command, args []string) {
 		//
 		// show version and exit
@@ -61,12 +61,19 @@ and fowards them to Circonus.`,
 			log.Fatal().Err(err).Msg("initializing")
 		}
 
-		config.StatConfig()
+		_ = config.StatConfig()
 
 		if err := a.Start(); err != nil {
 			log.Fatal().Err(err).Msg("starting process")
 		}
 	},
+}
+
+func bindFlagError(flag string, err error) {
+	log.Fatal().Err(err).Str("flag", flag).Msg("binding flag")
+}
+func bindEnvError(envVar string, err error) {
+	log.Fatal().Err(err).Str("var", envVar).Msg("binding env var")
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -113,7 +120,9 @@ func init() {
 		)
 
 		RootCmd.PersistentFlags().String(longOpt, "", description)
-		viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt))
+		if err := viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt)); err != nil {
+			bindFlagError(longOpt, err)
+		}
 	}
 	{
 		const (
@@ -124,7 +133,9 @@ func init() {
 			description  = "Show version and exit"
 		)
 		RootCmd.Flags().BoolP(longOpt, shortOpt, defaultValue, description)
-		viper.BindPFlag(key, RootCmd.Flags().Lookup(longOpt))
+		if err := viper.BindPFlag(key, RootCmd.Flags().Lookup(longOpt)); err != nil {
+			bindFlagError(longOpt, err)
+		}
 	}
 
 	//
@@ -152,7 +163,7 @@ func initConfig() {
 	}
 }
 
-// initApp initializes the global application
+// initApp initializes the application components
 func initApp(cmd *cobra.Command, args []string) error {
 	if err := initLogging(cmd, args); err != nil {
 		return err

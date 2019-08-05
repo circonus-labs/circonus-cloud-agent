@@ -23,7 +23,9 @@ func init() {
 		)
 
 		RootCmd.PersistentFlags().Bool(longOpt, azureservice.DefaultEnabled, description)
-		viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt))
+		if err := viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt)); err != nil {
+			bindFlagError(longOpt, err)
+		}
 		viper.SetDefault(key, azureservice.DefaultEnabled)
 	}
 
@@ -35,7 +37,9 @@ func init() {
 		)
 
 		RootCmd.PersistentFlags().String(longOpt, azureservice.DefaultConfDir, description)
-		viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt))
+		if err := viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt)); err != nil {
+			bindFlagError(longOpt, err)
+		}
 		viper.SetDefault(key, azureservice.DefaultConfDir)
 	}
 	{
@@ -46,6 +50,8 @@ func init() {
 		)
 
 		RootCmd.PersistentFlags().String(longOpt, "", description)
-		viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt))
+		if err := viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt)); err != nil {
+			bindFlagError(longOpt, err)
+		}
 	}
 }
