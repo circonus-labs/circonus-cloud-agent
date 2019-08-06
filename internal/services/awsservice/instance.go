@@ -92,7 +92,9 @@ func (svc *AWSService) initInstances(confDir string) error {
 		// number of samples is three. if exactly three * period is used,
 		// cloudwatch sdk will often respond with only the last two samples.
 		// so use 3 * period, plus a little extra cushion.
-		interval := (period * 3) + (period / 2)
+		// interval := (period * 3) + (period / 2)
+		// seeing gaps, ask for more repetitive data...
+		interval := (period * 4)
 
 		for _, regionConfig := range cfg.Regions {
 			regionConfig := regionConfig
