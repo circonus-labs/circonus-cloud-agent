@@ -11,6 +11,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/aws/client"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
 	"github.com/aws/aws-sdk-go/service/elasticache"
@@ -59,7 +60,7 @@ func (c *ElastiCache) Collect(sess *session.Session, timespan MetricTimespan, ba
 	c.logger.Debug().Msg("retrieving telemetry")
 	clusterList, err := c.clusterList(sess)
 	if awserr := c.trackAWSErrors(err); awserr != nil {
-		return errors.Wrap(c.trackAWSErrors(awserr), "geting cluster list")
+		return errors.Wrap(c.trackAWSErrors(awserr), "getting cluster list")
 	}
 
 	collectorFn := c.metricStats
@@ -103,7 +104,7 @@ func (c *ElastiCache) Collect(sess *session.Session, timespan MetricTimespan, ba
 	return nil
 }
 
-func (c *ElastiCache) clusterList(sess *session.Session) (map[string][]string, error) {
+func (c *ElastiCache) clusterList(sess client.ConfigProvider) (map[string][]string, error) {
 	clusterList := map[string][]string{}
 	ecSvc := elasticache.New(sess)
 

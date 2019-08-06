@@ -10,6 +10,7 @@ import (
 	"context"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/aws/client"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -62,7 +63,7 @@ func (c *EC2) Collect(sess *session.Session, timespan MetricTimespan, baseTags c
 	c.logger.Debug().Msg("getting aws ec2 instance list")
 	ec2instances, err := c.ec2Instances(sess, baseTags)
 	if awserr := c.trackAWSErrors(err); awserr != nil {
-		return errors.Wrap(c.trackAWSErrors(awserr), "geting instance information")
+		return errors.Wrap(c.trackAWSErrors(awserr), "getting instance information")
 	}
 
 	c.logger.Debug().Msg("retrieving telemetry")
@@ -113,7 +114,7 @@ func (c *EC2) Collect(sess *session.Session, timespan MetricTimespan, baseTags c
 // ec2Instances pulls a list of ec2 instances, saves the InstanceId for the
 // cloudwatch metric dimension and creates a list of default stream tags to
 // use for the metrics collected for the specific ec2 instance.
-func (c *EC2) ec2Instances(sess *session.Session, baseTags circonus.Tags) ([]ec2instance, error) {
+func (c *EC2) ec2Instances(sess client.ConfigProvider, baseTags circonus.Tags) ([]ec2instance, error) {
 	ec2List := []ec2instance{}
 
 	if sess == nil {
@@ -152,8 +153,8 @@ func (c *EC2) ec2Instances(sess *session.Session, baseTags circonus.Tags) ([]ec2
 				circonus.Tag{Category: "arch", Value: *ec2inst.Architecture},
 				circonus.Tag{Category: "image_id", Value: *ec2inst.ImageId},
 			}...)
-			if len((*ec2inst).Tags) > 0 {
-				for _, tag := range (*ec2inst).Tags {
+			if len(ec2inst.Tags) > 0 {
+				for _, tag := range ec2inst.Tags {
 					tc := strings.ToLower(strings.Replace(*tag.Key, ":", "_", -1))
 					tv := strings.ToLower(*tag.Value)
 					streamTags = append(streamTags, circonus.Tag{Category: tc, Value: tv})

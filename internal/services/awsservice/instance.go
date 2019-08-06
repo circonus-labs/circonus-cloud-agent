@@ -199,16 +199,16 @@ func (inst *Instance) Start() error {
 	}
 }
 
-// done is a utility routine to check the context, returns true if done
-func (inst *Instance) done() bool {
-	select {
-	case <-inst.ctx.Done():
-		inst.logger.Debug().Msg("context done, exiting")
-		return true
-	default:
-		return false
-	}
-}
+// // done is a utility routine to check the context, returns true if done
+// func (inst *Instance) done() bool {
+// 	select {
+// 	case <-inst.ctx.Done():
+// 		inst.logger.Debug().Msg("context done, exiting")
+// 		return true
+// 	default:
+// 		return false
+// 	}
+// }
 
 // createSession returns a new aws session using configured aws information
 func (inst *Instance) createSession(region string) (*session.Session, error) {

@@ -165,14 +165,15 @@ func initConfig() {
 
 // initApp initializes the application components
 func initApp(cmd *cobra.Command, args []string) error {
-	if err := initLogging(cmd, args); err != nil {
+	if err := initLogging(); err != nil {
 		return err
 	}
 	return nil
 }
 
 // initLogging initializes zerolog
-func initLogging(cmd *cobra.Command, args []string) error {
+// func initLogging(cmd *cobra.Command, args []string) error {
+func initLogging() error {
 	//
 	// Enable formatted output
 	//

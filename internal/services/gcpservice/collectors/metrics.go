@@ -59,9 +59,11 @@ func (c *common) processMetrics(projectID, filter string, creds []byte, metricDe
 		}
 
 		tsFilter := fmt.Sprintf(`metric.type = "%s" %s`, metricDescriptor.GetType(), filter)
-		if err := c.fetchTimeseries(client, projectID, tsFilter, creds, metricDescriptor.GetDisplayName(), metricDest, tags); err != nil {
-			c.logger.Warn().Err(err).Interface("metric", metricDescriptor).Str("filter", tsFilter).Msg("fetching timeseries")
-		}
+		c.fetchTimeseries(client, projectID, tsFilter, creds, metricDescriptor.GetDisplayName(), metricDest, tags)
+		// fetchTimeseries will log its own errors and ignore them so it can get at least some metrics
+		// if err := c.fetchTimeseries(client, projectID, tsFilter, creds, metricDescriptor.GetDisplayName(), metricDest, tags); err != nil {
+		// 	c.logger.Warn().Err(err).Interface("metric", metricDescriptor).Str("filter", tsFilter).Msg("fetching timeseries")
+		// }
 		if c.done() {
 			break
 		}
@@ -72,7 +74,9 @@ func (c *common) processMetrics(projectID, filter string, creds []byte, metricDe
 }
 
 // fetchTimeseries retrieves the actual samples for the metric defined by the filter
-func (c *common) fetchTimeseries(client *monitoring.MetricClient, projectID, filter string, creds []byte, metricName string, metricDest io.Writer, baseTags circonus.Tags) error {
+func (c *common) fetchTimeseries(client *monitoring.MetricClient, projectID, filter string, creds []byte, metricName string, metricDest io.Writer, baseTags circonus.Tags) {
+	_ = creds // ref to keep signatures same and squelch lint unused warning
+
 	req := &monitoringpb.ListTimeSeriesRequest{
 		Name: "projects/" + projectID,
 		Interval: &monitoringpb.TimeInterval{
@@ -168,6 +172,4 @@ func (c *common) fetchTimeseries(client *monitoring.MetricClient, projectID, fil
 			break
 		}
 	}
-
-	return nil
 }

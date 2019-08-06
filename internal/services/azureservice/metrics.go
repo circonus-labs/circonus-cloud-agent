@@ -210,7 +210,7 @@ func (inst *Instance) extractSamples(timeseries *[]insights.TimeSeriesElement, a
 		for _, mv := range *t.Data {
 			var sampleValue interface{}
 			sampleType := circonus.MetricTypeFloat64
-			sampleTimestamp := (*mv.TimeStamp).ToTime()
+			sampleTimestamp := mv.TimeStamp.ToTime()
 
 			switch aggregation {
 			case "Average":

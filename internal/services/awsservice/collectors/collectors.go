@@ -260,7 +260,6 @@ type common struct {
 	ctx          context.Context
 	dimensions   []*cloudwatch.Dimension
 	metrics      []Metric
-	period       string
 	tags         circonus.Tags
 	useGMD       bool
 	logger       zerolog.Logger

@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/aws/client"
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
 	"github.com/circonus-labs/circonus-cloud-agent/internal/circonus"
 	"github.com/pkg/errors"
@@ -21,7 +21,7 @@ import (
 //   NOTE: override in specific service if needed (see ec2)
 
 // nolint: gocyclo
-func (c *common) metricData(metricDest io.Writer, sess *session.Session, timespan MetricTimespan, dimensions []*cloudwatch.Dimension, baseTags circonus.Tags) error {
+func (c *common) metricData(metricDest io.Writer, sess client.ConfigProvider, timespan MetricTimespan, dimensions []*cloudwatch.Dimension, baseTags circonus.Tags) error {
 	if metricDest == nil {
 		return errors.New("invalid metric destination (nil)")
 	}
@@ -157,7 +157,7 @@ func (c *common) metricData(metricDest io.Writer, sess *session.Session, timespa
 	return nil
 }
 
-func (c *common) metricStats(metricDest io.Writer, sess *session.Session, timespan MetricTimespan, dimensions []*cloudwatch.Dimension, baseTags circonus.Tags) error {
+func (c *common) metricStats(metricDest io.Writer, sess client.ConfigProvider, timespan MetricTimespan, dimensions []*cloudwatch.Dimension, baseTags circonus.Tags) error {
 	if metricDest == nil {
 		return errors.New("invalid metric destination (nil)")
 	}

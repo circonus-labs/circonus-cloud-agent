@@ -9,7 +9,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io"
 	"sync"
 	"time"
 
@@ -142,63 +141,63 @@ func (inst *Instance) collect(endTime time.Time) error {
 	return nil
 }
 
-// collectWithPipe metrics from Azure and forward to Circonus using pipes
-func (inst *Instance) collectWithPipe(endTime time.Time) error {
-	// NOTE: Unable to use pipes at the moment. ATS &| broker cannot
-	// handle PUT|POST requests without a Content-Length header which is,
-	// of course, not possible with a pipe...
+// // collectWithPipe metrics from Azure and forward to Circonus using pipes
+// func (inst *Instance) collectWithPipe(endTime time.Time) error {
+// 	// NOTE: Unable to use pipes at the moment. ATS &| broker cannot
+// 	// handle PUT|POST requests without a Content-Length header which is,
+// 	// of course, not possible with a pipe...
 
-	auth, err := inst.authorize()
-	if err != nil {
-		return errors.Wrap(err, "authorize, subscription meta")
-	}
+// 	auth, err := inst.authorize()
+// 	if err != nil {
+// 		return errors.Wrap(err, "authorize, subscription meta")
+// 	}
 
-	resources, err := inst.getResources(auth)
-	if err != nil {
-		return errors.Wrap(err, "resource list")
-	}
+// 	resources, err := inst.getResources(auth)
+// 	if err != nil {
+// 		return errors.Wrap(err, "resource list")
+// 	}
 
-	if inst.done() {
-		return nil
-	}
+// 	if inst.done() {
+// 		return nil
+// 	}
 
-	var wg sync.WaitGroup
-	pr, pw := io.Pipe()
-	wg.Add(1)
+// 	var wg sync.WaitGroup
+// 	pr, pw := io.Pipe()
+// 	wg.Add(1)
 
-	go func() {
-		defer wg.Done()
+// 	go func() {
+// 		defer wg.Done()
 
-		for _, resource := range resources {
-			err := inst.getResourceMetrics(pw, auth, resource.ID, endTime, resource.Tags)
-			if err != nil {
-				inst.logger.Warn().Err(err).Str("resource_id", resource.ID).Msg("collecting metrics")
-			}
+// 		for _, resource := range resources {
+// 			err := inst.getResourceMetrics(pw, auth, resource.ID, endTime, resource.Tags)
+// 			if err != nil {
+// 				inst.logger.Warn().Err(err).Str("resource_id", resource.ID).Msg("collecting metrics")
+// 			}
 
-			if inst.done() {
-				break
-			}
-		}
+// 			if inst.done() {
+// 				break
+// 			}
+// 		}
 
-		// TODO: submit run stats, write run metrics to pw
+// 		// TODO: submit run stats, write run metrics to pw
 
-		if err := pw.Close(); err != nil {
-			inst.logger.Error().Err(err).Msg("closing pipe writer")
-		}
-	}()
+// 		if err := pw.Close(); err != nil {
+// 			inst.logger.Error().Err(err).Msg("closing pipe writer")
+// 		}
+// 	}()
 
-	inst.logger.Debug().Msg("starting metric submission")
-	if err := inst.check.SubmitMetrics(pr); err != nil {
-		inst.logger.Error().Err(err).Msg("submitting metrics")
-	}
+// 	inst.logger.Debug().Msg("starting metric submission")
+// 	if err := inst.check.SubmitMetrics(pr); err != nil {
+// 		inst.logger.Error().Err(err).Msg("submitting metrics")
+// 	}
 
-	wg.Wait()
+// 	wg.Wait()
 
-	// queue up errors
-	// submit each error here in separate request
+// 	// queue up errors
+// 	// submit each error here in separate request
 
-	return nil
-}
+// 	return nil
+// }
 
 // done is a utility routine to check the context, returns true if done
 func (inst *Instance) done() bool {

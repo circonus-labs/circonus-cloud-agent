@@ -101,16 +101,12 @@ func ConfigExample() ([]GCPCollector, error) {
 			Name:     cn,
 			Disabled: true,
 		}
-		var v Collector
 		switch cn {
 		case "compute":
 			c.Disabled = false
-			v = &Compute{}
+			cc = append(cc, c)
 		default:
 			return nil, errors.Errorf("unknown gcp service (%s)", cn)
-		}
-		if v != nil {
-			cc = append(cc, c)
 		}
 	}
 
