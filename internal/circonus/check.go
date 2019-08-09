@@ -52,7 +52,7 @@ func (c *Check) initializeCheckBundle() error {
 
 // findOrCreateCheckBundle searches for a check bundle based on target and display name
 func (c *Check) findOrCreateCheckBundle() (*apiclient.CheckBundle, error) {
-	searchCriteria := apiclient.SearchQueryType(fmt.Sprintf(`(active:1)(type:"%s")(host:%s)`, checkType, c.config.ID))
+	searchCriteria := apiclient.SearchQueryType(fmt.Sprintf(`(active:1)(type:"%s")(host:%s)`, c.checkType, c.config.ID))
 
 	bundles, err := c.apih.SearchCheckBundles(&searchCriteria, nil)
 	if err != nil {
@@ -111,7 +111,7 @@ func (c *Check) createCheckBundle() (*apiclient.CheckBundle, error) {
 		Tags:          strings.Split(c.config.Tags, ","),
 		Target:        c.config.ID,
 		Timeout:       10,
-		Type:          checkType,
+		Type:          c.checkType,
 	}
 
 	bundle, err := c.apih.CreateCheckBundle(checkConfig)

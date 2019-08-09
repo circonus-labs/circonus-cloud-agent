@@ -37,6 +37,7 @@ type Instance struct {
 	logger     zerolog.Logger
 	check      *circonus.Check
 	period     int64
+	lastStart  *time.Time
 	collectors []collectors.Collector
 	baseTags   circonus.Tags
 	running    bool
@@ -94,7 +95,7 @@ func (svc *AWSService) initInstances(confDir string) error {
 		// so use 3 * period, plus a little extra cushion.
 		// interval := (period * 3) + (period / 2)
 		// seeing gaps, ask for more repetitive data...
-		interval := (period * 4)
+		interval := period
 
 		for _, regionConfig := range cfg.Regions {
 			regionConfig := regionConfig
@@ -104,7 +105,7 @@ func (svc *AWSService) initInstances(confDir string) error {
 				ctx:       svc.groupCtx,
 				interval:  uint(interval),
 				logger:    svc.logger.With().Str("id", cfg.ID).Str("region", regionConfig.Name).Logger(),
-				period:    int64(period),
+				period:    int64(60), // always request 60 second granularity
 			}
 			instance.logger.Debug().Str("aws_region", regionConfig.Name).Msg("initialized client instance for region")
 
@@ -127,7 +128,7 @@ func (svc *AWSService) initInstances(confDir string) error {
 				checkConfig.Tags += "," + strings.Join(tags, ",")
 			}
 
-			chk, err := circonus.NewCheck(checkConfig)
+			chk, err := circonus.NewCheck("aws", checkConfig)
 			if err != nil {
 				instance.logger.Error().Err(err).Msg("creating Circonus Check instance, skipping")
 				continue
@@ -154,7 +155,17 @@ func (svc *AWSService) initInstances(confDir string) error {
 
 // Start metric collections based on the configured interval - intended to be run in a goroutine (e.g. errgroup)
 func (inst *Instance) Start() error {
-	ticker := time.NewTicker(time.Duration(inst.period) * time.Second)
+	interval := time.Duration(inst.interval) * time.Second
+
+	inst.logger.Info().Str("collection_interval", interval.String()).Msg("client started")
+
+	// ticker := time.NewTicker(time.Duration(inst.period) * time.Second)
+	// ticker := time.NewTicker(interval)
+	// fire every minute so we run at the closest proximity to the interval boundary regardless of whether
+	// it is 1m or 5m coupled with the duration of each individual collection run
+	// NOTE: ticker doesn't fire EXACTLY on boundaries (e.g. 59.9997, 3m59.9988, etc.)
+	ticker := time.NewTicker(1 * time.Minute)
+
 	defer ticker.Stop()
 
 	for {
@@ -162,53 +173,86 @@ func (inst *Instance) Start() error {
 		case <-inst.ctx.Done():
 			return nil
 		case <-ticker.C:
-			inst.logger.Debug().Msg("metric collection triggered")
-			sess, err := inst.createSession(inst.regionCfg.Name)
-			if err != nil {
-				inst.logger.Warn().Err(err).Msg("creating AWS SDK session")
-				continue
-			}
-
 			inst.Lock()
+			if inst.lastStart != nil {
+				elapsed := time.Since(*inst.lastStart)
+				if elapsed < interval {
+					if interval-elapsed > 5*time.Second {
+						inst.logger.Debug().Str("interval", interval.String()).Str("delta", elapsed.String()).Msg("interval not reached")
+						inst.Unlock()
+						continue
+					}
+				}
+			}
 			if inst.running {
 				inst.Unlock()
 				inst.logger.Warn().Msg("collection already in progress, not starting another")
 				continue
 			}
+
+			sess, err := inst.createSession(inst.regionCfg.Name)
+			if err != nil {
+				inst.logger.Warn().Err(err).Msg("creating AWS SDK session")
+				inst.Unlock()
+				continue
+			}
+
+			// calculate one timeseries range for all requests from collectors
+			start := time.Now()
+			defaultDelta := 10 * time.Minute // get last 10 minutes of samples
+			delta := defaultDelta
+			if inst.lastStart != nil {
+				delta = start.Sub(*inst.lastStart) + interval
+			}
+			// if defaultDelta > delta {
+			// 	delta = defaultDelta
+			// }
+			tsEnd := start
+			tsStart := tsEnd.Add(-delta)
+			inst.logger.Info().Time("start", tsStart).Time("end", tsEnd).Str("delta", delta.String()).Msg("collection timeseries range")
+
+			inst.lastStart = &start
 			inst.running = true
 			inst.Unlock()
 
-			end := time.Now()
-			start := end.Add(-(time.Duration(inst.interval) * time.Second))
 			timespan := collectors.MetricTimespan{
-				Start:  start,
-				End:    end,
+				Start:  tsStart,
+				End:    tsEnd,
 				Period: inst.period,
 			}
-			for _, c := range inst.collectors {
-				if err := c.Collect(sess, timespan, inst.baseTags); err != nil {
-					inst.check.ReportError(errors.WithMessage(err, fmt.Sprintf("id: %s, collector: %s", inst.cfg.ID, c.ID())))
-					inst.logger.Warn().Err(err).Str("collector", c.ID()).Msg("collecting telemetry")
-				}
-			}
 
-			inst.Lock()
-			inst.running = false
-			inst.Unlock()
+			go func() {
+				for _, c := range inst.collectors {
+					if err := c.Collect(sess, timespan, inst.baseTags); err != nil {
+						inst.check.ReportError(errors.WithMessage(err, fmt.Sprintf("id: %s, collector: %s", inst.cfg.ID, c.ID())))
+						inst.logger.Warn().Err(err).Str("collector", c.ID()).Msg("collecting telemetry")
+						// need to determine which errors from the various
+						// cloud service providers are fatal vs retry vs ???
+					}
+					if inst.done() {
+						break
+					}
+				}
+
+				inst.Lock()
+				inst.running = false
+				inst.Unlock()
+				inst.logger.Debug().Str("duration", time.Since(start).String()).Msg("collection complete")
+			}()
 		}
 	}
 }
 
-// // done is a utility routine to check the context, returns true if done
-// func (inst *Instance) done() bool {
-// 	select {
-// 	case <-inst.ctx.Done():
-// 		inst.logger.Debug().Msg("context done, exiting")
-// 		return true
-// 	default:
-// 		return false
-// 	}
-// }
+// done is a utility routine to check the context, returns true if done
+func (inst *Instance) done() bool {
+	select {
+	case <-inst.ctx.Done():
+		inst.logger.Debug().Msg("context done, exiting")
+		return true
+	default:
+		return false
+	}
+}
 
 // createSession returns a new aws session using configured aws information
 func (inst *Instance) createSession(region string) (*session.Session, error) {
