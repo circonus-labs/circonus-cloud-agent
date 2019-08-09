@@ -75,7 +75,6 @@ regions:
 
 ### Example -- for local
 
-
 ```yaml
 ---
 
