@@ -33,6 +33,9 @@ type Instance struct {
 // Start runs the instance based on the configured interval
 func (inst *Instance) Start() error {
 	interval := time.Duration(inst.cfg.GCP.Interval) * time.Minute
+
+	inst.logger.Info().Str("collection_interval", interval.String()).Time("next_collection", time.Now().Add(interval)).Msg("client started")
+
 	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
