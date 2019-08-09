@@ -8,6 +8,7 @@ package collectors
 import (
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 	"time"
 
@@ -131,12 +132,13 @@ func (c *common) metricData(metricDest io.Writer, sess client.ConfigProvider, ti
 				}
 
 				metricDefinition := c.metrics[metricIdx]
-				for idx, resultTimestamp := range result.Timestamps {
-					metricValue := *result.Values[idx]
-					if err := c.recordMetric(metricDest, metricDefinition, metricStat, metricValue, resultTimestamp, metricTags); err != nil {
+				samples := c.sortMetricDataSamples(result)
+				for _, sample := range samples {
+					if err := c.recordMetric(metricDest, metricDefinition, metricStat, sample.Value, sample.TS, metricTags); err != nil {
 						c.logger.Warn().Err(err).Str("aws_metric", metricDefinition.AWSMetric.Name).Msg("recording metric datapoint")
 					}
 				}
+
 				if c.done() {
 					return nil
 				}
@@ -155,6 +157,28 @@ func (c *common) metricData(metricDest io.Writer, sess client.ConfigProvider, ti
 	}
 
 	return nil
+}
+
+// The following is for sorting the timeseries samples
+// returned by aws GetMetricData
+
+type mdSample struct {
+	TS    *time.Time
+	Value float64
+}
+
+func (c *common) sortMetricDataSamples(ts *cloudwatch.MetricDataResult) []mdSample {
+	if len(ts.Timestamps) == 0 {
+		return []mdSample{}
+	}
+
+	samples := make([]mdSample, len(ts.Timestamps))
+	for idx, rts := range ts.Timestamps {
+		samples[idx] = mdSample{TS: rts, Value: *ts.Values[idx]}
+	}
+
+	sort.Slice(samples, func(i, j int) bool { return samples[i].TS.Before(*samples[j].TS) })
+	return samples
 }
 
 func (c *common) metricStats(metricDest io.Writer, sess client.ConfigProvider, timespan MetricTimespan, dimensions []*cloudwatch.Dimension, baseTags circonus.Tags) error {
@@ -206,32 +230,75 @@ func (c *common) metricStats(metricDest io.Writer, sess client.ConfigProvider, t
 				metricTags = append(metricTags, circonus.Tag{Category: *d.Name, Value: *d.Value})
 			}
 		}
-		for _, metricDatapoint := range result.Datapoints {
-			for _, stat := range metricDefinition.AWSMetric.Stats {
-				var metricValue float64
-				switch stat {
-				case "Average":
-					metricValue = *metricDatapoint.Average
-				case "Sum":
-					metricValue = *metricDatapoint.Sum
-				case "Minimum":
-					metricValue = *metricDatapoint.Minimum
-				case "Maximum":
-					metricValue = *metricDatapoint.Maximum
-				case "SampleCount":
-					metricValue = *metricDatapoint.SampleCount
-				}
-				if err := c.recordMetric(metricDest, metricDefinition, stat, metricValue, metricDatapoint.Timestamp, metricTags); err != nil {
-					c.logger.Warn().Err(err).Str("aws_metric", metricDefinition.AWSMetric.Name).Msg("recording metric statistic")
-				}
-				if c.done() {
-					return nil
-				}
+		// if strings.Contains(metricDefinition.AWSMetric.Name, "CPUUtilization") {
+		// 	c.logger.Debug().Interface("metric", metricDefinition).Interface("datapionts", result.Datapoints).Msg("metrics from aws")
+		// }
+		datapoints := c.sortMetricStatDatapoints(result.Datapoints, metricDefinition)
+		for _, dp := range datapoints {
+			var mt circonus.Tags
+			mt = append(mt, metricTags...)
+			mt = append(mt, circonus.Tag{Category: "units", Value: dp.Units})
+			if err := c.recordMetric(metricDest, metricDefinition, dp.Stat, dp.Value, dp.Timestamp, mt); err != nil {
+				c.logger.Warn().Err(err).Str("aws_metric", metricDefinition.AWSMetric.Name).Msg("recording metric statistic")
 			}
+		}
+		if c.done() {
+			return nil
 		}
 	}
 
 	return nil
+}
+
+// The following is for sorting the datapoints (in time stamp order)
+// returned by aws GetMetricStatistics
+
+type msDatapoint struct {
+	Timestamp *time.Time
+	Value     float64
+	Units     string
+	Stat      string
+}
+
+func (c *common) sortMetricStatDatapoints(datapoints []*cloudwatch.Datapoint, md Metric) []msDatapoint {
+	if len(datapoints) == 0 {
+		return []msDatapoint{}
+	}
+
+	samples := make([]msDatapoint, 0)
+	for _, dp := range datapoints {
+		for _, stat := range md.AWSMetric.Stats {
+			var v float64
+			switch stat {
+			case "Average":
+				v = *dp.Average
+			case "Sum":
+				v = *dp.Sum
+			case "Minimum":
+				v = *dp.Minimum
+			case "Maximum":
+				v = *dp.Maximum
+			case "SampleCount":
+				v = *dp.SampleCount
+			}
+
+			samples = append(samples, msDatapoint{
+				Timestamp: dp.Timestamp,
+				Value:     v,
+				Units:     *dp.Unit,
+				Stat:      stat,
+			})
+			if c.done() {
+				break
+			}
+		}
+		if c.done() {
+			break
+		}
+	}
+
+	sort.Slice(samples, func(i, j int) bool { return samples[i].Timestamp.Before(*samples[j].Timestamp) })
+	return samples
 }
 
 // recordMetric creates a metric name w/encoded stream tags then writes the metric sample to the metric destination
@@ -261,9 +328,19 @@ func (c *common) recordMetric(metricDest io.Writer, metric Metric, metricStat st
 	case "counter":
 		fallthrough
 	case "gauge":
+		if strings.Contains(metricName, "CPUUtilization") {
+			mt := c.check.EncodeMetricTags(tags)
+			c.logger.Debug().Str("encoded_metric_name", metricName).Int64("epoch", ts.Unix()).Msg("for data api call")
+			c.logger.Debug().Str("metric", mn).Strs("tags", mt).Str("type", "n").Float64("val", val.(float64)).Time("ts", *ts).Msg("metric to circonus")
+		}
 		err = c.check.WriteMetricSample(metricDest, metricName, "n", val.(float64), ts)
 	case "histogram":
-		err = c.check.WriteMetricSample(metricDest, metricName, "n", val.(float64), ts)
+		if strings.Contains(metricName, "CPUUtilization") {
+			mt := c.check.EncodeMetricTags(tags)
+			c.logger.Debug().Str("encoded_metric_name", metricName).Int64("epoch", ts.Unix()).Msg("for data api call")
+			c.logger.Debug().Str("metric", mn).Strs("tags", mt).Str("type", "h").Float64("val", val.(float64)).Time("ts", *ts).Msg("metric to circonus")
+		}
+		err = c.check.WriteMetricSample(metricDest, metricName, "h", val.(float64), ts)
 	case "text":
 		err = c.check.WriteMetricSample(metricDest, metricName, "s", fmt.Sprintf("%v", val), ts)
 	default:
