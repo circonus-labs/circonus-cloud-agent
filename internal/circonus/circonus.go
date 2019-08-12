@@ -15,6 +15,7 @@ import (
 
 	"github.com/circonus-labs/circonus-cloud-agent/internal/release"
 	apiclient "github.com/circonus-labs/go-apiclient"
+	apiclicfg "github.com/circonus-labs/go-apiclient/config"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
@@ -150,6 +151,9 @@ func NewCheck(svcID string, cfg *Config) (*Check, error) {
 
 	if err := c.initializeCheckBundle(); err != nil {
 		return nil, errors.Wrap(err, "initializing check")
+	}
+	if _, ok := c.bundle.Config[apiclicfg.SubmissionURL]; !ok {
+		return nil, errors.Errorf("check bundle invalid, missing submission url")
 	}
 
 	if err := c.initializeBroker(); err != nil {
