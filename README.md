@@ -1,6 +1,6 @@
 # Circonus Cloud Agent
 
-Current status is a **work in progress** (WIP aka active development) of a minimum viable product (MVP) which will be refined based on feedback from initial/select users.
+**PREVIEW RELEASE** -- Current status is a **work in progress** (WIP aka active development) of a minimum viable product (MVP) which will be refined based on feedback from preview release users.
 
 ## Installation
 
