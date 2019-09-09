@@ -21,18 +21,23 @@ import (
 // Note: a Instance has a 1:1 relation with azure:circ - each Instance has (or, may have)
 // a different set of azure and/or circonus credentials.
 type Instance struct {
-	cfg      *Config
-	ctx      context.Context
-	logger   zerolog.Logger
-	check    *circonus.Check
-	baseTags circonus.Tags
-	running  bool
+	cfg       *Config
+	ctx       context.Context
+	logger    zerolog.Logger
+	check     *circonus.Check
+	baseTags  circonus.Tags
+	lastStart *time.Time
+	running   bool
 	sync.Mutex
 }
 
 // Start runs the instance based on the configured interval
 func (inst *Instance) Start() error {
-	ticker := time.NewTicker(time.Duration(inst.cfg.Azure.Interval) * time.Minute)
+	interval := time.Duration(inst.cfg.Azure.Interval) * time.Minute
+
+	inst.logger.Info().Str("collection_interval", interval.String()).Msg("client started")
+
+	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
 	for {
@@ -40,19 +45,31 @@ func (inst *Instance) Start() error {
 		case <-inst.ctx.Done():
 			return nil
 		case <-ticker.C:
-			inst.logger.Debug().Msg("metric collection triggered")
 			inst.Lock()
+			if inst.lastStart != nil {
+				elapsed := time.Since(*inst.lastStart)
+				if elapsed < interval {
+					if interval-elapsed > 5*time.Second {
+						inst.logger.Debug().Str("interval", interval.String()).Str("delta", elapsed.String()).Msg("interval not reached")
+						inst.Unlock()
+						continue
+					}
+				}
+			}
 			if inst.running {
 				inst.Unlock()
 				inst.logger.Warn().Msg("collection already in progress, not starting another")
 				continue
 			}
+
+			// calculate one timeseries range for all requests from collectors
+			start := time.Now()
+
+			inst.lastStart = &start
 			inst.running = true
 			inst.Unlock()
 
-			endTime := time.Now().UTC()
-
-			err := inst.collect(endTime)
+			err := inst.collect(start.UTC())
 			if err != nil {
 				inst.check.ReportError(errors.WithMessage(err, fmt.Sprintf("id: %s", inst.cfg.ID)))
 				inst.logger.Warn().Err(err).Msg("collecting metrics")
@@ -60,15 +77,10 @@ func (inst *Instance) Start() error {
 				// need to determine which errors from the various cloud service providers are fatal vs retry vs wait for next iteration
 			}
 
-			// if viper.GetBool(config.KeyPipeSubmits) {
-			// 	err = inst.collectWithPipe(endTime)
-			// } else {
-			//  err = inst.collect(endTime)
-			// }
-
 			inst.Lock()
 			inst.running = false
 			inst.Unlock()
+			inst.logger.Info().Str("duration", time.Since(start).String()).Msg("collection complete")
 		}
 	}
 }
@@ -123,7 +135,7 @@ func (inst *Instance) collect(endTime time.Time) error {
 		}
 
 		if buf.Len() == 0 {
-			inst.logger.Warn().Str("resource_id", resource.ID).Msg("no telemetry to submit")
+			inst.logger.Debug().Str("resource_id", resource.ID).Msg("no telemetry to submit")
 			continue
 		}
 
@@ -136,68 +148,8 @@ func (inst *Instance) collect(endTime time.Time) error {
 		buf.Reset()
 	}
 
-	// TODO: submit run stats (e.g. buf.Reset(); write run metrics, submit run metrics)
-
 	return nil
 }
-
-// // collectWithPipe metrics from Azure and forward to Circonus using pipes
-// func (inst *Instance) collectWithPipe(endTime time.Time) error {
-// 	// NOTE: Unable to use pipes at the moment. ATS &| broker cannot
-// 	// handle PUT|POST requests without a Content-Length header which is,
-// 	// of course, not possible with a pipe...
-
-// 	auth, err := inst.authorize()
-// 	if err != nil {
-// 		return errors.Wrap(err, "authorize, subscription meta")
-// 	}
-
-// 	resources, err := inst.getResources(auth)
-// 	if err != nil {
-// 		return errors.Wrap(err, "resource list")
-// 	}
-
-// 	if inst.done() {
-// 		return nil
-// 	}
-
-// 	var wg sync.WaitGroup
-// 	pr, pw := io.Pipe()
-// 	wg.Add(1)
-
-// 	go func() {
-// 		defer wg.Done()
-
-// 		for _, resource := range resources {
-// 			err := inst.getResourceMetrics(pw, auth, resource.ID, endTime, resource.Tags)
-// 			if err != nil {
-// 				inst.logger.Warn().Err(err).Str("resource_id", resource.ID).Msg("collecting metrics")
-// 			}
-
-// 			if inst.done() {
-// 				break
-// 			}
-// 		}
-
-// 		// TODO: submit run stats, write run metrics to pw
-
-// 		if err := pw.Close(); err != nil {
-// 			inst.logger.Error().Err(err).Msg("closing pipe writer")
-// 		}
-// 	}()
-
-// 	inst.logger.Debug().Msg("starting metric submission")
-// 	if err := inst.check.SubmitMetrics(pr); err != nil {
-// 		inst.logger.Error().Err(err).Msg("submitting metrics")
-// 	}
-
-// 	wg.Wait()
-
-// 	// queue up errors
-// 	// submit each error here in separate request
-
-// 	return nil
-// }
 
 // done is a utility routine to check the context, returns true if done
 func (inst *Instance) done() bool {
