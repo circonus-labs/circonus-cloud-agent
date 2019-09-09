@@ -159,13 +159,10 @@ func (inst *Instance) Start() error {
 
 	inst.logger.Info().Str("collection_interval", interval.String()).Msg("client started")
 
-	// ticker := time.NewTicker(time.Duration(inst.period) * time.Second)
-	// ticker := time.NewTicker(interval)
 	// fire every minute so we run at the closest proximity to the interval boundary regardless of whether
 	// it is 1m or 5m coupled with the duration of each individual collection run
 	// NOTE: ticker doesn't fire EXACTLY on boundaries (e.g. 59.9997, 3m59.9988, etc.)
 	ticker := time.NewTicker(1 * time.Minute)
-
 	defer ticker.Stop()
 
 	for {
@@ -177,7 +174,7 @@ func (inst *Instance) Start() error {
 			if inst.lastStart != nil {
 				elapsed := time.Since(*inst.lastStart)
 				if elapsed < interval {
-					if interval-elapsed > 5*time.Second {
+					if interval-elapsed > 2*time.Second {
 						inst.logger.Debug().Str("interval", interval.String()).Str("delta", elapsed.String()).Msg("interval not reached")
 						inst.Unlock()
 						continue
@@ -190,6 +187,7 @@ func (inst *Instance) Start() error {
 				continue
 			}
 
+			inst.logger.Debug().Str("region", inst.regionCfg.Name).Msg("setting up session")
 			sess, err := inst.createSession(inst.regionCfg.Name)
 			if err != nil {
 				inst.logger.Warn().Err(err).Msg("creating AWS SDK session")
@@ -199,14 +197,10 @@ func (inst *Instance) Start() error {
 
 			// calculate one timeseries range for all requests from collectors
 			start := time.Now()
-			defaultDelta := 10 * time.Minute // get last 10 minutes of samples
-			delta := defaultDelta
+			delta := 10 * time.Minute // get last 10 minutes of samples
 			if inst.lastStart != nil {
 				delta = start.Sub(*inst.lastStart) + interval
 			}
-			// if defaultDelta > delta {
-			// 	delta = defaultDelta
-			// }
 			tsEnd := start
 			tsStart := tsEnd.Add(-delta)
 			inst.logger.Info().Time("start", tsStart).Time("end", tsEnd).Str("delta", delta.String()).Msg("collection timeseries range")
@@ -237,7 +231,7 @@ func (inst *Instance) Start() error {
 				inst.Lock()
 				inst.running = false
 				inst.Unlock()
-				inst.logger.Debug().Str("duration", time.Since(start).String()).Msg("collection complete")
+				inst.logger.Info().Str("duration", time.Since(start).String()).Msg("collection complete")
 			}()
 		}
 	}
