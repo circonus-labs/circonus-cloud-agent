@@ -78,7 +78,10 @@ func (c *Check) SubmitMetrics(metricSrc io.Reader) error {
 	if err != nil {
 		return err
 	}
-	c.logger.Printf("Submitted data\n===BEGIN(%d)\n%s\n===END\n", time.Now().UTC().UnixNano(), mbuff)
+	if e := c.logger.Debug(); e.Enabled() {
+		e.Msg("Submitted data")
+		fmt.Printf("\n===BEGIN(%d)\n%s\n===END\n", time.Now().UTC().UnixNano(), mbuff)
+	}
 	req, err := http.NewRequest("PUT", subURL, bytes.NewReader(mbuff))
 	// return to this one when debugging submissions is complete
 	// req, err := http.NewRequest("PUT", subURL, metricSrc)
@@ -109,12 +112,12 @@ func (c *Check) SubmitMetrics(metricSrc io.Reader) error {
 				c.logger.Warn().Err(err).Msg("closing pipe reader")
 			}
 		}
-		c.logger.Error().Err(err).Str("url", subURL).Str("status", resp.Status).Str("response", string(body)).Msg("submitting telemetry")
+		c.logger.Error().Err(err).Str("url", subURL).Str("status", resp.Status).RawJSON("response", body).Msg("submitting telemetry")
 		client.CloseIdleConnections()
 		return errors.Wrap(err, "submitting metrics")
 	}
 
-	c.logger.Debug().Str("cid", c.bundle.CID).Str("result", string(body)).Msg("telmetry stats submitted")
+	c.logger.Debug().Str("cid", c.bundle.CID).RawJSON("result", body).Msg("telmetry stats submitted")
 
 	client.CloseIdleConnections()
 
