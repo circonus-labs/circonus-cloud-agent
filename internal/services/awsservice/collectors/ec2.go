@@ -65,14 +65,12 @@ func (c *EC2) Collect(sess *session.Session, timespan MetricTimespan, baseTags c
 	if awserr := c.trackAWSErrors(err); awserr != nil {
 		return errors.Wrap(c.trackAWSErrors(awserr), "getting instance information")
 	}
+	if len(ec2instances) == 0 {
+		c.logger.Warn().Msg("zero instances found")
+	}
 
 	c.logger.Debug().Msg("retrieving telemetry")
 
-	// NOTE: remove need for custom metricStats and metricData collectors
-	// collectorFn := c.ec2MetricStats
-	// if c.useGMD {
-	// 	collectorFn = c.ec2MetricData
-	// }
 	collectorFn := c.metricStats
 	if c.useGMD {
 		collectorFn = c.metricData
