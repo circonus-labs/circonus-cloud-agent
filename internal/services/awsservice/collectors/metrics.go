@@ -208,16 +208,19 @@ func (c *common) metricStats(metricDest io.Writer, sess client.ConfigProvider, t
 			Period:     &timespan.Period,
 		}
 		if len(dimensions) > 0 {
-			getMetricStatisticsInput.Dimensions = c.dimensions
+			getMetricStatisticsInput.Dimensions = dimensions
 		} else if len(c.dimensions) > 0 {
 			getMetricStatisticsInput.Dimensions = c.dimensions
 		}
+
+		c.logger.Debug().Interface("inputs", getMetricStatisticsInput).Msg("metric stats inputs")
 
 		result, err := cwSvc.GetMetricStatistics(&getMetricStatisticsInput)
 		if err != nil {
 			c.logger.Error().Err(err).Str("aws_metric_name", metricDefinition.AWSMetric.Name).Msg("retrieving metric statistics")
 			continue
 		}
+		c.logger.Debug().Interface("result", result).Str("metric", metricDefinition.AWSMetric.Name).Msg("AWS response")
 		var metricTags circonus.Tags
 		if len(c.tags) > 0 {
 			metricTags = append(metricTags, c.tags...)
@@ -230,9 +233,6 @@ func (c *common) metricStats(metricDest io.Writer, sess client.ConfigProvider, t
 				metricTags = append(metricTags, circonus.Tag{Category: *d.Name, Value: *d.Value})
 			}
 		}
-		// if strings.Contains(metricDefinition.AWSMetric.Name, "CPUUtilization") {
-		// 	c.logger.Debug().Interface("metric", metricDefinition).Interface("datapionts", result.Datapoints).Msg("metrics from aws")
-		// }
 		datapoints := c.sortMetricStatDatapoints(result.Datapoints, metricDefinition)
 		for _, dp := range datapoints {
 			var mt circonus.Tags
