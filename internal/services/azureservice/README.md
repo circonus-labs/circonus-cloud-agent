@@ -1,6 +1,6 @@
 # Azure
 
-## Configuration:
+## Azure specific configuration items
 
 * DirectoryID
 * ApplicationID
@@ -18,9 +18,24 @@ Example configuration: `circonus-cloud-agentd --enable-azure --azure-example-con
 1. Login to the Azure portal
 1. [Create application](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal#create-an-azure-active-directory-application)
     1. name the application (circonus-cloud-agent)
-    1. assign _Monitoring Reader_ access role policy
+    1. ~~assign _Monitoring Reader_ access role policy~~
+    1. add reader role to subscription for application
 1. collect application configuration information
     1. directory id
     1. application id
     1. application secret
     1. subscription id
+
+## Bare minimum configuration
+
+```yaml
+---
+id:
+azure:
+  directory_id:
+  application_id:
+  application_secret:
+  subscription_id:
+circonus:
+  key:
+```

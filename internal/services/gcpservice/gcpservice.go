@@ -252,7 +252,7 @@ func (svc *GCPService) instanceFromConfig(cfgFile string) (*Instance, error) {
 		checkConfig.Tags += "," + strings.Join(tags, ",")
 	}
 
-	chk, err := circonus.NewCheck(checkConfig)
+	chk, err := circonus.NewCheck("gcp", checkConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "creating/retrieving circonus check")
 	}

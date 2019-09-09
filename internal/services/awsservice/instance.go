@@ -37,6 +37,7 @@ type Instance struct {
 	logger     zerolog.Logger
 	check      *circonus.Check
 	period     int64
+	lastStart  *time.Time
 	collectors []collectors.Collector
 	baseTags   circonus.Tags
 	running    bool
@@ -56,6 +57,7 @@ func (svc *AWSService) initInstances(confDir string) error {
 	}
 
 	for _, entry := range entries {
+		entry := entry
 		if entry.IsDir() {
 			continue
 		}
@@ -91,16 +93,19 @@ func (svc *AWSService) initInstances(confDir string) error {
 		// number of samples is three. if exactly three * period is used,
 		// cloudwatch sdk will often respond with only the last two samples.
 		// so use 3 * period, plus a little extra cushion.
-		interval := (period * 3) + (period / 2)
+		// interval := (period * 3) + (period / 2)
+		// seeing gaps, ask for more repetitive data...
+		interval := period
 
 		for _, regionConfig := range cfg.Regions {
+			regionConfig := regionConfig
 			instance := &Instance{
 				cfg:       &cfg,
 				regionCfg: &regionConfig,
 				ctx:       svc.groupCtx,
 				interval:  uint(interval),
 				logger:    svc.logger.With().Str("id", cfg.ID).Str("region", regionConfig.Name).Logger(),
-				period:    int64(period),
+				period:    int64(60), // always request 60 second granularity
 			}
 			instance.logger.Debug().Str("aws_region", regionConfig.Name).Msg("initialized client instance for region")
 
@@ -123,30 +128,12 @@ func (svc *AWSService) initInstances(confDir string) error {
 				checkConfig.Tags += "," + strings.Join(tags, ",")
 			}
 
-			chk, err := circonus.NewCheck(checkConfig)
+			chk, err := circonus.NewCheck("aws", checkConfig)
 			if err != nil {
 				instance.logger.Error().Err(err).Msg("creating Circonus Check instance, skipping")
 				continue
 			}
 			instance.check = chk
-
-			// TODO: dig more for any api call(s) that can be used for auto-discovery
-			//
-			// // using aws credentials, get list of active services
-			// // actually...this is an inverse viewpoint - how many aws services are available,
-			// // not how many the credentials actually have active
-			// sess, err := instance.createSession(regionConfig.Name)
-			// if err != nil {
-			// 	instance.logger.Error().Err(err).Str("region", regionConfig.Name).Msg("unable to create session for region as configured")
-			// 	break
-			// }
-			// svcList, err := instance.getActiveServiceList(sess)
-			// if err != nil {
-			// 	instance.logger.Error().Err(err).Str("region", regionConfig.Name).Msg("unable to get list of active services for region")
-			// 	continue
-			// }
-			//
-			// ms, err := collectors.New(instance.ctx, regionConfig.Services, instance.logger, svcList)
 
 			ms, err := collectors.New(instance.ctx, instance.check, regionConfig.Services, instance.logger)
 			if err != nil {
@@ -168,7 +155,14 @@ func (svc *AWSService) initInstances(confDir string) error {
 
 // Start metric collections based on the configured interval - intended to be run in a goroutine (e.g. errgroup)
 func (inst *Instance) Start() error {
-	ticker := time.NewTicker(time.Duration(inst.period) * time.Second)
+	interval := time.Duration(inst.interval) * time.Second
+
+	inst.logger.Info().Str("collection_interval", interval.String()).Msg("client started")
+
+	// fire every minute so we run at the closest proximity to the interval boundary regardless of whether
+	// it is 1m or 5m coupled with the duration of each individual collection run
+	// NOTE: ticker doesn't fire EXACTLY on boundaries (e.g. 59.9997, 3m59.9988, etc.)
+	ticker := time.NewTicker(1 * time.Minute)
 	defer ticker.Stop()
 
 	for {
@@ -176,133 +170,72 @@ func (inst *Instance) Start() error {
 		case <-inst.ctx.Done():
 			return nil
 		case <-ticker.C:
-			inst.logger.Debug().Msg("metric collection triggered")
-			sess, err := inst.createSession(inst.regionCfg.Name)
-			if err != nil {
-				inst.logger.Warn().Err(err).Msg("creating AWS SDK session")
-				continue
-			}
-
 			inst.Lock()
+			if inst.lastStart != nil {
+				elapsed := time.Since(*inst.lastStart)
+				if elapsed < interval {
+					if interval-elapsed > 2*time.Second {
+						inst.logger.Debug().Str("interval", interval.String()).Str("delta", elapsed.String()).Msg("interval not reached")
+						inst.Unlock()
+						continue
+					}
+				}
+			}
 			if inst.running {
 				inst.Unlock()
 				inst.logger.Warn().Msg("collection already in progress, not starting another")
 				continue
 			}
+
+			inst.logger.Debug().Str("region", inst.regionCfg.Name).Msg("setting up session")
+			sess, err := inst.createSession(inst.regionCfg.Name)
+			if err != nil {
+				inst.logger.Warn().Err(err).Msg("creating AWS SDK session")
+				inst.Unlock()
+				continue
+			}
+
+			// calculate one timeseries range for all requests from collectors
+			start := time.Now()
+			delta := 10 * time.Minute // get last 10 minutes of samples
+			if inst.lastStart != nil {
+				delta = start.Sub(*inst.lastStart) + interval
+			}
+			tsEnd := start
+			tsStart := tsEnd.Add(-delta)
+			inst.logger.Info().Time("start", tsStart).Time("end", tsEnd).Str("delta", delta.String()).Msg("collection timeseries range")
+
+			inst.lastStart = &start
 			inst.running = true
 			inst.Unlock()
 
-			end := time.Now()
-			start := end.Add(-(time.Duration(inst.interval) * time.Second))
 			timespan := collectors.MetricTimespan{
-				Start:  start,
-				End:    end,
+				Start:  tsStart,
+				End:    tsEnd,
 				Period: inst.period,
 			}
-			for _, c := range inst.collectors {
-				if err := c.Collect(sess, timespan, inst.baseTags); err != nil {
-					inst.check.ReportError(errors.WithMessage(err, fmt.Sprintf("id: %s, collector: %s", inst.cfg.ID, c.ID())))
-					inst.logger.Warn().Err(err).Str("collector", c.ID()).Msg("collecting telemetry")
-				}
-			}
 
-			inst.Lock()
-			inst.running = false
-			inst.Unlock()
+			go func() {
+				for _, c := range inst.collectors {
+					if err := c.Collect(sess, timespan, inst.baseTags); err != nil {
+						inst.check.ReportError(errors.WithMessage(err, fmt.Sprintf("id: %s, collector: %s", inst.cfg.ID, c.ID())))
+						inst.logger.Warn().Err(err).Str("collector", c.ID()).Msg("collecting telemetry")
+						// need to determine which errors from the various
+						// cloud service providers are fatal vs retry vs ???
+					}
+					if inst.done() {
+						break
+					}
+				}
+
+				inst.Lock()
+				inst.running = false
+				inst.Unlock()
+				inst.logger.Info().Str("duration", time.Since(start).String()).Msg("collection complete")
+			}()
 		}
 	}
 }
-
-// func (inst *Instance) collect() error {
-// 	inst.logger.Debug().Msg("creating aws session")
-// 	sess, err := inst.createSession(inst.regionCfg.Name)
-// 	if err != nil {
-// 		return errors.Wrap(err, "creating AWS SDK session")
-// 	}
-
-// 	// model that needs to be used, so submission request
-// 	// will have a content-length:
-
-// 	// 1. create a buffer
-// 	// 2. for each service
-// 	//    a. collect service metrics (write into buffer)
-// 	//    b. submit metrics (read from buffer)
-// 	//    c. reset buffer (so it can be re-used for next service)
-
-// 	// given there is no way to know how many metrics will be
-// 	// received from any given service. it is safer to collect
-// 	// metrics from each service and submit immediately/independently.
-// 	// versus, collecting all services' metrics into one buffer and
-// 	// submitting as one potentially huge PUT.
-
-// 	// 1
-// 	var buf bytes.Buffer
-// 	// 2
-// 	for _, c := range inst.collectors {
-// 		// 2.a
-// 		if err := c.Collect(sess, &buf, inst.baseTags, inst.interval, inst.period); err != nil {
-// 			inst.check.ReportError(errors.WithMessage(err, fmt.Sprintf("id: %s, collector: %s", inst.cfg.ID, c.ID())))
-// 			inst.logger.Warn().Err(err).Str("collector", c.ID()).Msg("collecting telemetry")
-// 		}
-// 		// 2.b
-// 		if buf.Len() == 0 {
-// 			inst.logger.Warn().Str("collector", c.ID()).Msg("no telemetry to submit")
-// 			continue
-// 		}
-// 		inst.logger.Debug().Str("collector", c.ID()).Msg("submitting telemetry")
-// 		if err := inst.check.SubmitMetrics(&buf); err != nil {
-// 			inst.check.ReportError(errors.WithMessage(err, fmt.Sprintf("id: %s, collector: %s", inst.cfg.ID, c.ID())))
-// 			inst.logger.Error().Err(err).Str("collector", c.ID()).Msg("submitting telemetry")
-// 		}
-// 		// 2.c
-// 		buf.Reset()
-// 		if inst.done() {
-// 			break
-// 		}
-// 	}
-
-// 	// TODO: submit run stats (e.g. buf.Reset(); write run metrics, submit run metrics)
-// 	return nil
-// }
-
-// func (inst *Instance) collectWithPipe() error {
-// 	inst.logger.Debug().Msg("creating aws session")
-// 	sess, err := inst.createSession(inst.regionCfg.Name)
-// 	if err != nil {
-// 		return errors.Wrap(err, "creating AWS SDK session")
-// 	}
-// 	// can't use a pipe at the moment, ATS &| broker will not handle
-// 	// PUT|POST requests without a Content-Length header which is,
-// 	// of course, not possible with a pipe...
-// 	var wg sync.WaitGroup
-// 	pr, pw := io.Pipe()
-
-// 	wg.Add(1)
-// 	go func() {
-// 		defer wg.Done()
-// 		for _, c := range inst.collectors {
-// 			if err := c.Collect(sess, pw, inst.baseTags, inst.interval, inst.period); err != nil {
-// 				inst.logger.Warn().Err(err).Str("collector", c.ID()).Msg("collecting metrics")
-// 			}
-// 			if inst.done() {
-// 				break
-// 			}
-// 		}
-
-// 		// TODO: submit run stats, write run metrics to pw
-
-// 		if err := pw.Close(); err != nil {
-// 			inst.logger.Warn().Err(err).Msg("closing pipe writer")
-// 		}
-// 	}()
-
-// 	inst.logger.Debug().Msg("starting metric submission")
-// 	if err := inst.check.SubmitMetrics(pr); err != nil {
-// 		inst.logger.Error().Err(err).Msg("submitting metrics")
-// 	}
-// 	wg.Wait()
-// 	return nil
-// }
 
 // done is a utility routine to check the context, returns true if done
 func (inst *Instance) done() bool {
@@ -319,16 +252,17 @@ func (inst *Instance) done() bool {
 func (inst *Instance) createSession(region string) (*session.Session, error) {
 	var creds *credentials.Credentials
 
-	if inst.cfg.AWS.Role != "" {
+	switch {
+	case inst.cfg.AWS.Role != "":
 		creds = credentials.NewSharedCredentials(
 			inst.cfg.AWS.CredentialsFile,
 			inst.cfg.AWS.Role)
-	} else if inst.cfg.AWS.AccessKeyID != "" {
+	case inst.cfg.AWS.AccessKeyID != "":
 		creds = credentials.NewStaticCredentials(
 			inst.cfg.AWS.AccessKeyID,
 			inst.cfg.AWS.SecretAccessKey,
 			"")
-	} else {
+	default:
 		return nil, errors.New("invalid AWS credentils configuration")
 	}
 
@@ -339,28 +273,3 @@ func (inst *Instance) createSession(region string) (*session.Session, error) {
 
 	return session.NewSession(cfg)
 }
-
-// func (inst *Instance) getActiveServiceList(sess *session.Session) ([]string, error) {
-// 	sl := make(map[string]bool)
-// 	lmi := &cloudwatch.ListMetricsInput{}
-// 	client := cloudwatch.New(sess)
-// 	err := client.ListMetricsPagesWithContext(inst.ctx, lmi, func(page *cloudwatch.ListMetricsOutput, lastPage bool) bool {
-// 		for _, metric := range page.Metrics {
-// 			if _, found := sl[*metric.Namespace]; !found {
-// 				sl[*metric.Namespace] = true
-// 			}
-// 		}
-// 		return true
-// 	})
-// 	if err != nil {
-// 		return []string{}, errors.Wrap(err, "getting list of active services")
-// 	}
-//
-// 	activeServices := make([]string, len(sl))
-// 	i := 0
-// 	for serviceName := range sl {
-// 		activeServices[i] = serviceName
-// 		i++
-// 	}
-// 	return activeServices, errors.New("not implemented")
-// }

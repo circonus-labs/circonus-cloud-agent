@@ -8,10 +8,11 @@ package collectors
 import (
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/aws/client"
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
 	"github.com/circonus-labs/circonus-cloud-agent/internal/circonus"
 	"github.com/pkg/errors"
@@ -20,143 +21,8 @@ import (
 // Generic metric collection methods
 //   NOTE: override in specific service if needed (see ec2)
 
-// // metricData uses cloudwatch.GetMetricData (one call per 100 metrics)
-// func (c *common) metricData(metricDest io.Writer, sess *session.Session, interval uint, period int64) error {
-// 	if metricDest == nil {
-// 		return errors.New("invalid metric destination (nil)")
-// 	}
-// 	if sess == nil {
-// 		return errors.New("invalid session (nil)")
-// 	}
-
-// 	resultIDFormat := "m%ds%sq%d" // used to create result id AND to extract metric IDs in returned results
-// 	metricDataQueryBuckets := [][]*cloudwatch.MetricDataQuery{make([]*cloudwatch.MetricDataQuery, 0, 100)}
-// 	bucketID := 0
-// 	metricCount := 0
-// 	returnData := true
-// 	for metricIdx, metricDefinition := range c.metrics {
-// 		if metricDefinition.AWSMetric.Disabled {
-// 			continue
-// 		}
-// 		for _, metricStatName := range metricDefinition.AWSMetric.Stats {
-// 			metricStatName := metricStatName
-// 			metricID := fmt.Sprintf(resultIDFormat, metricIdx, metricStatName, metricCount)
-// 			metricStat := cloudwatch.MetricStat{
-// 				Metric: &cloudwatch.Metric{
-// 					MetricName: &metricDefinition.AWSMetric.Name,
-// 					Namespace:  &c.id,
-// 				},
-// 				Period: &period,
-// 				Stat:   &metricStatName,
-// 			}
-// 			if len(c.dimensions) > 0 {
-// 				metricStat.Metric.Dimensions = c.dimensions
-// 			}
-// 			metricDataQuery := &cloudwatch.MetricDataQuery{
-// 				Id:         &metricID,
-// 				ReturnData: &returnData,
-// 				MetricStat: &metricStat,
-// 			}
-
-// 			metricDataQueryBuckets[bucketID] = append(metricDataQueryBuckets[bucketID], metricDataQuery)
-// 			metricCount++
-
-// 			// metric data query capped at 100 metrics, create new bucket every 100 metrics
-// 			if metricCount%100 == 0 {
-// 				bucketID++
-// 				metricDataQueryBuckets = append(metricDataQueryBuckets, make([]*cloudwatch.MetricDataQuery, 0, 100))
-// 			}
-// 			if c.done() {
-// 				return nil
-// 			}
-// 		}
-// 	}
-
-// 	cwSvc := cloudwatch.New(sess)
-
-// 	end := time.Now()
-// 	start := end.Add(-(time.Duration(interval) * time.Second))
-
-// 	for _, metricDataQueries := range metricDataQueryBuckets {
-// 		getMetricDataInput := cloudwatch.GetMetricDataInput{
-// 			StartTime:         &start,
-// 			EndTime:           &end,
-// 			MetricDataQueries: metricDataQueries,
-// 		}
-// 		results, err := cwSvc.GetMetricData(&getMetricDataInput)
-// 		if err != nil {
-// 			c.logger.Error().Err(err).Msg("retrieving metric data")
-// 			continue
-// 		}
-// 		if c.done() {
-// 			return nil
-// 		}
-// 		for {
-// 			for _, result := range results.MetricDataResults {
-// 				var metricStat string
-// 				var metricIdx, queryIdx int
-// 				if n, err := fmt.Sscanf(*result.Id, resultIDFormat, &metricIdx, &metricStat, &queryIdx); err != nil {
-// 					c.logger.Error().Err(err).Str("result_id", *result.Id).Msg("unable to extract cance/metric IDs from result id")
-// 					continue
-// 				} else if n != 2 {
-// 					c.logger.Error().Int("num_extracted", n).Str("result_id", *result.Id).Msg("unable to extract BOTH instance id and metric id from result id")
-// 					continue
-// 				}
-
-// 				if metricIdx > len(c.metrics) || metricIdx < 0 {
-// 					c.logger.Error().Int("metric_idx", metricIdx).Int("num_metrics", len(c.metrics)).Msg("invalid metric index <0||>len")
-// 					continue
-// 				}
-
-// 				if metricStat == "" {
-// 					c.logger.Error().Str("result_id", *result.Id).Msg("invalid metric stat")
-// 					continue
-// 				}
-
-// 				if queryIdx > len(metricDataQueries) || queryIdx < 0 {
-// 					c.logger.Error().Int("query_idx", queryIdx).Int("num_queries", len(metricDataQueries)).Msg("invalid metric data query index <0||>len")
-// 					continue
-// 				}
-
-// 				var metricTags circonus.Tags
-// 				if len(c.tags) > 0 {
-// 					metricTags = append(metricTags, c.tags...)
-// 				}
-// 				if len(metricDataQueries[queryIdx].MetricStat.Metric.Dimensions) > 0 {
-// 					for _, d := range metricDataQueries[queryIdx].MetricStat.Metric.Dimensions {
-// 						metricTags = append(metricTags, circonus.Tag{Category: *d.Name, Value: *d.Value})
-// 					}
-// 				}
-
-// 				metricDefinition := c.metrics[metricIdx]
-// 				for idx, resultTimestamp := range result.Timestamps {
-// 					metricValue := *result.Values[idx]
-// 					if err := c.recordMetric(metricDest, metricDefinition, metricStat, metricValue, resultTimestamp, metricTags); err != nil {
-// 						c.logger.Warn().Err(err).Str("aws_metric", metricDefinition.AWSMetric.Name).Msg("recording metric datapoint")
-// 					}
-// 				}
-// 				if c.done() {
-// 					return nil
-// 				}
-// 			}
-
-// 			if results.NextToken == nil {
-// 				break
-// 			}
-// 			getMetricDataInput.SetNextToken(*results.NextToken)
-// 			results, err = cwSvc.GetMetricData(&getMetricDataInput)
-// 			if err != nil {
-// 				c.logger.Error().Err(err).Msg("retrieving metric data w/NextToken")
-// 				break
-// 			}
-// 		}
-// 	}
-
-// 	return nil
-// }
-
 // nolint: gocyclo
-func (c *common) metricData(metricDest io.Writer, sess *session.Session, timespan MetricTimespan, dimensions []*cloudwatch.Dimension, baseTags circonus.Tags) error {
+func (c *common) metricData(metricDest io.Writer, sess client.ConfigProvider, timespan MetricTimespan, dimensions []*cloudwatch.Dimension, baseTags circonus.Tags) error {
 	if metricDest == nil {
 		return errors.New("invalid metric destination (nil)")
 	}
@@ -266,12 +132,13 @@ func (c *common) metricData(metricDest io.Writer, sess *session.Session, timespa
 				}
 
 				metricDefinition := c.metrics[metricIdx]
-				for idx, resultTimestamp := range result.Timestamps {
-					metricValue := *result.Values[idx]
-					if err := c.recordMetric(metricDest, metricDefinition, metricStat, metricValue, resultTimestamp, metricTags); err != nil {
+				samples := c.sortMetricDataSamples(result)
+				for _, sample := range samples {
+					if err := c.recordMetric(metricDest, metricDefinition, metricStat, sample.Value, sample.TS, metricTags); err != nil {
 						c.logger.Warn().Err(err).Str("aws_metric", metricDefinition.AWSMetric.Name).Msg("recording metric datapoint")
 					}
 				}
+
 				if c.done() {
 					return nil
 				}
@@ -292,82 +159,29 @@ func (c *common) metricData(metricDest io.Writer, sess *session.Session, timespa
 	return nil
 }
 
-// // metricStats uses cloudwatch.GetMetricStatistics (one call per metric)
-// func (c *common) metricStats(metricDest io.Writer, sess *session.Session, interval uint, period int64) error {
-// 	if metricDest == nil {
-// 		return errors.New("invalid metric destination (nil)")
-// 	}
-// 	if sess == nil {
-// 		return errors.New("invalid session (nil)")
-// 	}
+// The following is for sorting the timeseries samples
+// returned by aws GetMetricData
 
-// 	cwSvc := cloudwatch.New(sess)
-// 	end := time.Now()
-// 	start := end.Add(-(time.Duration(interval) * time.Second))
+type mdSample struct {
+	TS    *time.Time
+	Value float64
+}
 
-// 	for _, metricDefinition := range c.metrics {
-// 		if metricDefinition.AWSMetric.Disabled {
-// 			continue
-// 		}
-// 		stats := make([]*string, len(metricDefinition.AWSMetric.Stats))
-// 		for i := range metricDefinition.AWSMetric.Stats {
-// 			stats[i] = &metricDefinition.AWSMetric.Stats[i]
-// 		}
-// 		getMetricStatisticsInput := cloudwatch.GetMetricStatisticsInput{
-// 			Statistics: stats,
-// 			EndTime:    &end,
-// 			MetricName: &metricDefinition.AWSMetric.Name,
-// 			Namespace:  &c.id,
-// 			Period:     &period,
-// 			StartTime:  &start,
-// 		}
-// 		if len(c.dimensions) > 0 {
-// 			getMetricStatisticsInput.Dimensions = c.dimensions
-// 		}
+func (c *common) sortMetricDataSamples(ts *cloudwatch.MetricDataResult) []mdSample {
+	if len(ts.Timestamps) == 0 {
+		return []mdSample{}
+	}
 
-// 		result, err := cwSvc.GetMetricStatistics(&getMetricStatisticsInput)
-// 		if err != nil {
-// 			c.logger.Error().Err(err).Str("aws_metric_name", metricDefinition.AWSMetric.Name).Msg("retrieving metric statistics")
-// 			continue
-// 		}
-// 		var metricTags circonus.Tags
-// 		if len(c.tags) > 0 {
-// 			metricTags = append(metricTags, c.tags...)
-// 		}
-// 		if len(getMetricStatisticsInput.Dimensions) > 0 {
-// 			for _, d := range getMetricStatisticsInput.Dimensions {
-// 				metricTags = append(metricTags, circonus.Tag{Category: *d.Name, Value: *d.Value})
-// 			}
-// 		}
-// 		for _, metricDatapoint := range result.Datapoints {
-// 			for _, stat := range metricDefinition.AWSMetric.Stats {
-// 				var metricValue float64
-// 				switch stat {
-// 				case "Average":
-// 					metricValue = *metricDatapoint.Average
-// 				case "Sum":
-// 					metricValue = *metricDatapoint.Sum
-// 				case "Minimum":
-// 					metricValue = *metricDatapoint.Minimum
-// 				case "Maximum":
-// 					metricValue = *metricDatapoint.Maximum
-// 				case "SampleCount":
-// 					metricValue = *metricDatapoint.SampleCount
-// 				}
-// 				if err := c.recordMetric(metricDest, metricDefinition, stat, metricValue, metricDatapoint.Timestamp, metricTags); err != nil {
-// 					c.logger.Warn().Err(err).Str("aws_metric", metricDefinition.AWSMetric.Name).Msg("recording metric statistic")
-// 				}
-// 				if c.done() {
-// 					return nil
-// 				}
-// 			}
-// 		}
-// 	}
+	samples := make([]mdSample, len(ts.Timestamps))
+	for idx, rts := range ts.Timestamps {
+		samples[idx] = mdSample{TS: rts, Value: *ts.Values[idx]}
+	}
 
-// 	return nil
-// }
+	sort.Slice(samples, func(i, j int) bool { return samples[i].TS.Before(*samples[j].TS) })
+	return samples
+}
 
-func (c *common) metricStats(metricDest io.Writer, sess *session.Session, timespan MetricTimespan, dimensions []*cloudwatch.Dimension, baseTags circonus.Tags) error {
+func (c *common) metricStats(metricDest io.Writer, sess client.ConfigProvider, timespan MetricTimespan, dimensions []*cloudwatch.Dimension, baseTags circonus.Tags) error {
 	if metricDest == nil {
 		return errors.New("invalid metric destination (nil)")
 	}
@@ -394,16 +208,19 @@ func (c *common) metricStats(metricDest io.Writer, sess *session.Session, timesp
 			Period:     &timespan.Period,
 		}
 		if len(dimensions) > 0 {
-			getMetricStatisticsInput.Dimensions = c.dimensions
+			getMetricStatisticsInput.Dimensions = dimensions
 		} else if len(c.dimensions) > 0 {
 			getMetricStatisticsInput.Dimensions = c.dimensions
 		}
+
+		c.logger.Debug().Interface("inputs", getMetricStatisticsInput).Msg("metric stats inputs")
 
 		result, err := cwSvc.GetMetricStatistics(&getMetricStatisticsInput)
 		if err != nil {
 			c.logger.Error().Err(err).Str("aws_metric_name", metricDefinition.AWSMetric.Name).Msg("retrieving metric statistics")
 			continue
 		}
+		c.logger.Debug().Interface("result", result).Str("metric", metricDefinition.AWSMetric.Name).Msg("AWS response")
 		var metricTags circonus.Tags
 		if len(c.tags) > 0 {
 			metricTags = append(metricTags, c.tags...)
@@ -416,32 +233,72 @@ func (c *common) metricStats(metricDest io.Writer, sess *session.Session, timesp
 				metricTags = append(metricTags, circonus.Tag{Category: *d.Name, Value: *d.Value})
 			}
 		}
-		for _, metricDatapoint := range result.Datapoints {
-			for _, stat := range metricDefinition.AWSMetric.Stats {
-				var metricValue float64
-				switch stat {
-				case "Average":
-					metricValue = *metricDatapoint.Average
-				case "Sum":
-					metricValue = *metricDatapoint.Sum
-				case "Minimum":
-					metricValue = *metricDatapoint.Minimum
-				case "Maximum":
-					metricValue = *metricDatapoint.Maximum
-				case "SampleCount":
-					metricValue = *metricDatapoint.SampleCount
-				}
-				if err := c.recordMetric(metricDest, metricDefinition, stat, metricValue, metricDatapoint.Timestamp, metricTags); err != nil {
-					c.logger.Warn().Err(err).Str("aws_metric", metricDefinition.AWSMetric.Name).Msg("recording metric statistic")
-				}
-				if c.done() {
-					return nil
-				}
+		datapoints := c.sortMetricStatDatapoints(result.Datapoints, metricDefinition)
+		for _, dp := range datapoints {
+			var mt circonus.Tags
+			mt = append(mt, metricTags...)
+			mt = append(mt, circonus.Tag{Category: "units", Value: dp.Units})
+			if err := c.recordMetric(metricDest, metricDefinition, dp.Stat, dp.Value, dp.Timestamp, mt); err != nil {
+				c.logger.Warn().Err(err).Str("aws_metric", metricDefinition.AWSMetric.Name).Msg("recording metric statistic")
 			}
+		}
+		if c.done() {
+			return nil
 		}
 	}
 
 	return nil
+}
+
+// The following is for sorting the datapoints (in time stamp order)
+// returned by aws GetMetricStatistics
+
+type msDatapoint struct {
+	Timestamp *time.Time
+	Value     float64
+	Units     string
+	Stat      string
+}
+
+func (c *common) sortMetricStatDatapoints(datapoints []*cloudwatch.Datapoint, md Metric) []msDatapoint {
+	if len(datapoints) == 0 {
+		return []msDatapoint{}
+	}
+
+	samples := make([]msDatapoint, 0)
+	for _, dp := range datapoints {
+		for _, stat := range md.AWSMetric.Stats {
+			var v float64
+			switch stat {
+			case "Average":
+				v = *dp.Average
+			case "Sum":
+				v = *dp.Sum
+			case "Minimum":
+				v = *dp.Minimum
+			case "Maximum":
+				v = *dp.Maximum
+			case "SampleCount":
+				v = *dp.SampleCount
+			}
+
+			samples = append(samples, msDatapoint{
+				Timestamp: dp.Timestamp,
+				Value:     v,
+				Units:     *dp.Unit,
+				Stat:      stat,
+			})
+			if c.done() {
+				break
+			}
+		}
+		if c.done() {
+			break
+		}
+	}
+
+	sort.Slice(samples, func(i, j int) bool { return samples[i].Timestamp.Before(*samples[j].Timestamp) })
+	return samples
 }
 
 // recordMetric creates a metric name w/encoded stream tags then writes the metric sample to the metric destination
@@ -471,9 +328,19 @@ func (c *common) recordMetric(metricDest io.Writer, metric Metric, metricStat st
 	case "counter":
 		fallthrough
 	case "gauge":
+		if strings.Contains(metricName, "CPUUtilization") {
+			mt := c.check.EncodeMetricTags(tags)
+			c.logger.Debug().Str("encoded_metric_name", metricName).Int64("epoch", ts.Unix()).Msg("for data api call")
+			c.logger.Debug().Str("metric", mn).Strs("tags", mt).Str("type", "n").Float64("val", val.(float64)).Time("ts", *ts).Msg("metric to circonus")
+		}
 		err = c.check.WriteMetricSample(metricDest, metricName, "n", val.(float64), ts)
 	case "histogram":
-		err = c.check.WriteMetricSample(metricDest, metricName, "n", val.(float64), ts)
+		if strings.Contains(metricName, "CPUUtilization") {
+			mt := c.check.EncodeMetricTags(tags)
+			c.logger.Debug().Str("encoded_metric_name", metricName).Int64("epoch", ts.Unix()).Msg("for data api call")
+			c.logger.Debug().Str("metric", mn).Strs("tags", mt).Str("type", "h").Float64("val", val.(float64)).Time("ts", *ts).Msg("metric to circonus")
+		}
+		err = c.check.WriteMetricSample(metricDest, metricName, "h", val.(float64), ts)
 	case "text":
 		err = c.check.WriteMetricSample(metricDest, metricName, "s", fmt.Sprintf("%v", val), ts)
 	default:

@@ -23,7 +23,9 @@ func init() {
 		)
 
 		RootCmd.PersistentFlags().Bool(longOpt, awsservice.DefaultEnabled, description)
-		viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt))
+		if err := viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt)); err != nil {
+			bindFlagError(longOpt, err)
+		}
 		viper.SetDefault(key, awsservice.DefaultEnabled)
 	}
 
@@ -35,7 +37,9 @@ func init() {
 		)
 
 		RootCmd.PersistentFlags().String(longOpt, awsservice.DefaultConfDir, description)
-		viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt))
+		if err := viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt)); err != nil {
+			bindFlagError(longOpt, err)
+		}
 		viper.SetDefault(key, awsservice.DefaultConfDir)
 	}
 	{
@@ -46,7 +50,9 @@ func init() {
 		)
 
 		RootCmd.PersistentFlags().String(longOpt, "", description)
-		viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt))
+		if err := viper.BindPFlag(key, RootCmd.PersistentFlags().Lookup(longOpt)); err != nil {
+			bindFlagError(longOpt, err)
+		}
 	}
 
 }

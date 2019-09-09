@@ -6,6 +6,7 @@
 package circonus
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -72,7 +73,18 @@ func (c *Check) SubmitMetrics(metricSrc io.Reader) error {
 		}
 	}
 
-	req, err := http.NewRequest("PUT", subURL, metricSrc)
+	// for debugging only
+	mbuff, err := ioutil.ReadAll(metricSrc)
+	if err != nil {
+		return err
+	}
+	if e := c.logger.Debug(); e.Enabled() {
+		e.Msg("Submitted data")
+		fmt.Printf("\n===BEGIN(%d)\n%s\n===END\n", time.Now().UTC().UnixNano(), mbuff)
+	}
+	req, err := http.NewRequest("PUT", subURL, bytes.NewReader(mbuff))
+	// return to this one when debugging submissions is complete
+	// req, err := http.NewRequest("PUT", subURL, metricSrc)
 	if err != nil {
 		return err
 	}
@@ -100,12 +112,12 @@ func (c *Check) SubmitMetrics(metricSrc io.Reader) error {
 				c.logger.Warn().Err(err).Msg("closing pipe reader")
 			}
 		}
-		c.logger.Error().Err(err).Str("url", subURL).Str("status", resp.Status).Str("response", string(body)).Msg("submitting telemetry")
+		c.logger.Error().Err(err).Str("url", subURL).Str("status", resp.Status).RawJSON("response", body).Msg("submitting telemetry")
 		client.CloseIdleConnections()
 		return errors.Wrap(err, "submitting metrics")
 	}
 
-	c.logger.Debug().Str("cid", c.bundle.CID).Str("result", string(body)).Msg("telmetry stats submitted")
+	c.logger.Debug().Str("cid", c.bundle.CID).RawJSON("result", body).Msg("telmetry stats submitted")
 
 	client.CloseIdleConnections()
 
@@ -152,13 +164,15 @@ func (c *Check) WriteMetricSample(metricDest io.Writer, metricName, metricType s
 			metricName,
 			metricType,
 			val,
-			uint64(timestamp.UTC().UnixNano()/1e6))
+			uint64(timestamp.UTC().Unix()*1000), // trap wants milliseconds
+		)
 	} else {
 		metricSample = fmt.Sprintf(
 			`{"%s":{"_type":"%s","_value":%v}}`,
 			metricName,
 			metricType,
-			val)
+			val,
+		)
 	}
 
 	if c.config.TraceMetrics {

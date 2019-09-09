@@ -201,7 +201,9 @@ func (c *ApplicationELB) DefaultMetrics() []Metric {
 				},
 			},
 		}
-	} else if haveTargetGroup && haveLoadBalancer {
+	}
+
+	if haveTargetGroup && haveLoadBalancer {
 		return []Metric{
 			{
 				AWSMetric{
@@ -360,7 +362,9 @@ func (c *ApplicationELB) DefaultMetrics() []Metric {
 				},
 			},
 		}
-	} else if haveAvailabilityZone && haveLoadBalancer {
+	}
+
+	if haveAvailabilityZone && haveLoadBalancer {
 		return []Metric{
 			{
 				AWSMetric{
@@ -519,7 +523,9 @@ func (c *ApplicationELB) DefaultMetrics() []Metric {
 				},
 			},
 		}
-	} else if haveTargetGroup {
+	}
+
+	if haveTargetGroup {
 		return []Metric{
 			{
 				AWSMetric{
@@ -570,7 +576,9 @@ func (c *ApplicationELB) DefaultMetrics() []Metric {
 				},
 			},
 		}
-	} else if haveLoadBalancer {
+	}
+
+	if haveLoadBalancer {
 		return []Metric{
 			{
 				AWSMetric{

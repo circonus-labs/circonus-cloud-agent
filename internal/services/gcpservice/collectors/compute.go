@@ -17,6 +17,7 @@ import (
 	"github.com/rs/zerolog"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/compute/v1"
+	"google.golang.org/api/option"
 )
 
 // Compute holds definition for the gcp gce collector
@@ -147,7 +148,8 @@ func (c *Compute) getInstanceList(projectID string, creds []byte) ([]instanceInf
 	}
 	client := conf.Client(c.ctx)
 
-	svc, err := compute.New(client)
+	// svc, err := compute.New(client)
+	svc, err := compute.NewService(c.ctx, option.WithHTTPClient(client))
 	if err != nil {
 		return emptyList, errors.Wrap(err, "compute client")
 	}

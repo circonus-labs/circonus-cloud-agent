@@ -159,26 +159,19 @@ func (inst *Instance) getMetricData(
 		inst.logger.Warn().Err(err).Msg("adding user agent to client")
 	}
 
-	timeDelta := time.Duration(0)
-
-	// get at least three samples
-	// TODO(mgm) may need to bump these by a fraction so they are not on minute
-	//           boundaries like AWS where a minute boundary will intermittently
-	//           produce only 2 samples rather than the desired amount of 3
+	timeUnit := time.Minute
 	switch granularity {
-	case "PT1M":
-		timeDelta = 3 * time.Minute
 	case "PT5M":
-		timeDelta = (3 * 5) * time.Minute
+		timeUnit = 5 * time.Minute
 	case "PT15M":
-		timeDelta = (3 * 15) * time.Minute
+		timeUnit = 15 * time.Minute
 	case "PT30M":
-		timeDelta = (3 * 30) * time.Minute
+		timeUnit = 30 * time.Minute
 	case "PT1H":
-		timeDelta = 3 * time.Hour
-	default:
-		timeDelta = time.Duration(inst.cfg.Azure.Interval) * time.Minute
+		timeUnit = time.Hour
 	}
+
+	timeDelta := timeUnit * 10 // get last 10 samples
 
 	startTime := endTime.Add(-timeDelta)
 	timespan := fmt.Sprintf("%s/%s", startTime.Format(time.RFC3339), endTime.Format(time.RFC3339))
@@ -210,7 +203,7 @@ func (inst *Instance) extractSamples(timeseries *[]insights.TimeSeriesElement, a
 		for _, mv := range *t.Data {
 			var sampleValue interface{}
 			sampleType := circonus.MetricTypeFloat64
-			sampleTimestamp := (*mv.TimeStamp).ToTime()
+			sampleTimestamp := mv.TimeStamp.ToTime()
 
 			switch aggregation {
 			case "Average":

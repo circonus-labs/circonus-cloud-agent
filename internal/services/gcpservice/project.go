@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/cloudresourcemanager/v1"
+	"google.golang.org/api/option"
 )
 
 // loadProjectMeta retrieves project meta data from gcp api
@@ -21,7 +22,8 @@ func (inst *Instance) loadProjectMeta() error {
 	}
 	client := conf.Client(inst.ctx)
 
-	svc, err := cloudresourcemanager.New(client)
+	// svc, err := cloudresourcemanager.New(client)
+	svc, err := cloudresourcemanager.NewService(inst.ctx, option.WithHTTPClient(client))
 	if err != nil {
 		return errors.Wrap(err, "initializing resource manager service")
 	}

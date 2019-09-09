@@ -146,7 +146,9 @@ func (c *ElasticTranscoder) DefaultMetrics() []Metric {
 				},
 			},
 		}
-	} else if havePipelineID && !haveOperation {
+	}
+
+	if havePipelineID && !haveOperation {
 		return []Metric{
 			{
 				AWSMetric{
@@ -233,7 +235,9 @@ func (c *ElasticTranscoder) DefaultMetrics() []Metric {
 				},
 			},
 		}
-	} else if !havePipelineID && haveOperation {
+	}
+
+	if !havePipelineID && haveOperation {
 		return []Metric{
 			{
 				AWSMetric{

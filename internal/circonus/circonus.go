@@ -15,6 +15,7 @@ import (
 
 	"github.com/circonus-labs/circonus-cloud-agent/internal/release"
 	apiclient "github.com/circonus-labs/go-apiclient"
+	apiclicfg "github.com/circonus-labs/go-apiclient/config"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
@@ -59,6 +60,7 @@ type Check struct {
 	bundle          *apiclient.CheckBundle
 	metricTypeRx    *regexp.Regexp // validate metric types
 	logger          zerolog.Logger
+	checkType       string
 }
 
 // logshim is used to satisfy apiclient Logger interface (avoiding ptr receiver issue)
@@ -104,7 +106,6 @@ const (
 
 var (
 	publicHTTPTrapBrokerCID = "/broker/35"
-	checkType               = "httptrap"
 	checkStatusActive       = "active"
 	checkMetricFilters      = [][]string{
 		{"deny", "^$", ""},
@@ -114,7 +115,17 @@ var (
 
 // NewCheck creates a new Circonus check instance based on the Config options passed to
 // initialize the Circonus API, check and broker.
-func NewCheck(cfg *Config) (*Check, error) {
+func NewCheck(svcID string, cfg *Config) (*Check, error) {
+	{ // verify service id
+		found, err := regexp.MatchString(`^(aws|azure|gcp)$`, svcID)
+		if err != nil {
+			return nil, errors.Wrap(err, "checking service id")
+		}
+		if !found {
+			return nil, errors.Errorf("invalid service id (%s)", svcID)
+		}
+	}
+
 	if cfg == nil {
 		return nil, errors.New("invalid config (nil)")
 	}
@@ -131,6 +142,7 @@ func NewCheck(cfg *Config) (*Check, error) {
 			MetricTypeFloat64,
 			MetricTypeString,
 		}, "") + "]$"),
+		checkType: "httptrap:cloud_agent_" + svcID,
 	}
 
 	if err := c.initAPI(); err != nil {
@@ -139,6 +151,9 @@ func NewCheck(cfg *Config) (*Check, error) {
 
 	if err := c.initializeCheckBundle(); err != nil {
 		return nil, errors.Wrap(err, "initializing check")
+	}
+	if _, ok := c.bundle.Config[apiclicfg.SubmissionURL]; !ok {
+		return nil, errors.Errorf("check bundle invalid, missing submission url")
 	}
 
 	if err := c.initializeBroker(); err != nil {

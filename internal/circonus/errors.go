@@ -21,6 +21,4 @@ func (c *Check) ReportError(err error) {
 	if err := c.SubmitMetrics(&buf); err != nil {
 		c.logger.Error().Err(err).Msg("submitting error metric sample")
 	}
-
-	return
 }

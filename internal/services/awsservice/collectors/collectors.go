@@ -99,6 +99,7 @@ func New(ctx context.Context, check *circonus.Check, cfgs []AWSCollector, logger
 	cl := collectorList()
 	cc := []Collector{}
 	for _, cfg := range cfgs {
+		cfg := cfg
 		if cfg.Disabled {
 			continue // allow metrics from an entire service to be disabled
 		}
@@ -259,7 +260,6 @@ type common struct {
 	ctx          context.Context
 	dimensions   []*cloudwatch.Dimension
 	metrics      []Metric
-	period       string
 	tags         circonus.Tags
 	useGMD       bool
 	logger       zerolog.Logger
