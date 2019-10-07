@@ -36,7 +36,8 @@
 1. Download the [latest release](https://github.com/circonus-labs/circonus-cloud-agent/releases/latest)
 1. Unpack the release in the directory created in first step
 1. Create a service specific configuration directory `mkdir etc/aws.d`
-1. Create a service specific configuration file `sbin/circonus-cloud-agentd --enable-aws --aws-example-conf=yaml > etc/aws.d/myconfig.yaml`
+1. Create a service specific configuration file `sbin/circonus-cloud-agentd --enable-aws --aws-example-conf=yaml > etc/aws.d/myconfig.yaml`. Note, if the `id` is not set in the configuration file, the basename of the configuration file will be used.
+1. Edit the configuration file, add AWS and Circonus settings
 1. Setup as a system service or run in foreground
 
 ## Options
@@ -91,8 +92,6 @@ or, for credentials in a local file:
 * `credentials_file`
 
 ### Example configuration
-
-Run `sbin/circonus-cloud-agentd --enable-aws --aws-example-conf=yaml` to see a full example configuraiton file.
 
 Minimum configuration (for EC2 service):
 
