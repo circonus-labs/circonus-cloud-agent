@@ -1,3 +1,7 @@
+# v0.2.1
+
+* add: AWS/DX
+
 # v0.2.0
 
 * doc: update azure readme
