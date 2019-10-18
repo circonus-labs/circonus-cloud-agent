@@ -5,6 +5,7 @@
 * ApplicationELB
 * CloudFront
 * DynamoDB
+* DX
 * EBS
 * EC2
 * EC2AutoScaling

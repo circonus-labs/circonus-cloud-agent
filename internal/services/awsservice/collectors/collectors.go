@@ -140,6 +140,7 @@ func collectorList() collectorInitList {
 		"aws/applicationelb":    newApplicationELB,
 		"aws/cloudfront":        newCloudFront,
 		"aws/dynamodb":          newDynamoDB,
+		"aws/dx":                newDX,
 		"aws/ebs":               newEBS,
 		"aws/ec2":               newEC2,
 		"aws/ec2autoscaling":    newEC2AutoScaling,
@@ -188,6 +189,8 @@ func ConfigExample() ([]AWSCollector, error) {
 			v = &CloudFront{}
 		case "aws/dynamodb":
 			v = &DynamoDB{}
+		case "aws/dx":
+			v = &DX{}
 		case "aws/ebs":
 			v = &EBS{}
 		case "aws/ec2":
