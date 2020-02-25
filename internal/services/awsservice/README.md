@@ -42,7 +42,7 @@
     * Add the [Circonus api key](#circonus)
     * Add the [AWS credentials](#aws-settings)
     * Update settings for the desired AWS services to be monitored
-1. Setup as a system service or run in foreground
+1. Setup as a system service or run in foreground ensuring that `--enable-aws` is specified
 
 ## Options
 
@@ -80,8 +80,7 @@ Flags:
 ### Circonus
 
 1. Use Circonus UI to create or identify an API Token to use
-1. Create a configuration file (`etc/aws.d/...` with some unique name), place the aws and circonus credentials where appropriate and configure what metrics to retrieve
-1. Start/restart `circonus-cloud-agentd`, ensure `--enable-aws` is on command line, environment variable is set, or aws is enabled in main configuration file
+1. Add the `key` to the config file under the `circonus` section
 
 ### AWS settings
 
