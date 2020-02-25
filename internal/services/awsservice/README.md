@@ -33,12 +33,15 @@
 
 ## Installation
 
-1. Create a directory for the install: `mkdir -p /opt/circonus/cloud-agent`
+1. Create a directory for the install. Suggested: `mkdir -p /opt/circonus/cloud-agent`
 1. Download the [latest release](https://github.com/circonus-labs/circonus-cloud-agent/releases/latest)
 1. Unpack the release in the directory created in first step
-1. Create a service specific configuration directory `mkdir etc/aws.d`
-1. Create a service specific configuration file `sbin/circonus-cloud-agentd --enable-aws --aws-example-conf=yaml > etc/aws.d/myconfig.yaml`. Note, if the `id` is not set in the configuration file, the basename of the configuration file will be used.
-1. Edit the configuration file, add AWS and Circonus settings
+1. In this directory, create a config folder. Suggested: `mkdir /opt/circonus/cloud-agent/etc/aws.d`
+1. Auto-create a service specific configuration template in the desired format (yaml, toml, or json).  Suggested: `sbin/circonus-cloud-agentd --enable-aws --aws-example-conf=yaml > /opt/circonus/cloud-agent/etc/aws.d/aws-config.yaml` 
+  * Note, the `id` in the template is defaulted to the filename.  This should be changed to a name that will be unique across all cloud-agents used in Circonus
+  * Add your [Circonus api key](#circonus)
+  * Add either [AWS credentials](#aws-settings)
+  * Update settings for the desire AWS services to be monitored
 1. Setup as a system service or run in foreground
 
 ## Options
