@@ -45,6 +45,7 @@ Flags:
     1. Application ID
     1. Application secret
     1. Subscription ID
+1. Add these to the `azure` section of the config file.
 
 ### Circonus
 
