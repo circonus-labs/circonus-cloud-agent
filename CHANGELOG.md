@@ -1,3 +1,10 @@
+# v0.3.0
+
+* add: custom collector to walk through ec2 list of ebs volumes and collect from each one individually
+* upd: dimensions `map[string]string`
+* upd: dump _only_ on when `trace_metrics` setting true
+* fix: lint warnings
+
 # v0.2.1
 
 * add: AWS/DX
