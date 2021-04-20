@@ -38,24 +38,24 @@ type Collector interface {
 
 // AWSCollector defines a generic aws service metric collector
 type AWSCollector struct {
-	Namespace  string                  `json:"namespace" toml:"namespace" yaml:"namespace"`    // e.g. AWS/EC2
-	Disabled   bool                    `json:"disabled" toml:"disabled" yaml:"disabled"`       // disable metric collection for this aws service namespace
-	Dimensions []*cloudwatch.Dimension `json:"dimensions" toml:"dimensions" yaml:"dimensions"` // key:val pairs
-	Metrics    []Metric                `json:"metrics" toml:"metrics" yaml:"metrics"`          // mapping of metrics to collect
-	Tags       circonus.Tags           `json:"tags" toml:"tags" yaml:"tags"`                   // service tags
-	UseGMD     bool                    `json:"use_gmd" toml:"use_gmd" yaml:"use_gmd"`          // use getMetricData instead of getMetricStatsistics
 	// EC2 only
 	InstanceFilters *[]Filter `json:"instance_filters,omitempty" toml:"instance_filters,omitempty" yaml:"instance_filters,omitempty"`
 	// ElastiCache only
-	CacheClusterIDs *[]string `json:"cache_cluster_ids,omitempty" toml:"cache_cluster_ids,omitempty" yaml:"cache_cluster_ids,omitempty"`
+	CacheClusterIDs *[]string         `json:"cache_cluster_ids,omitempty" toml:"cache_cluster_ids,omitempty" yaml:"cache_cluster_ids,omitempty"`
+	Namespace       string            `json:"namespace" toml:"namespace" yaml:"namespace"`    // e.g. AWS/EC2
+	Dimensions      map[string]string `json:"dimensions" toml:"dimensions" yaml:"dimensions"` // key:val pairs
+	Tags            circonus.Tags     `json:"tags" toml:"tags" yaml:"tags"`                   // service tags
+	Metrics         []Metric          `json:"metrics" toml:"metrics" yaml:"metrics"`          // mapping of metrics to collect
+	Disabled        bool              `json:"disabled" toml:"disabled" yaml:"disabled"`       // disable metric collection for this aws service namespace
+	UseGMD          bool              `json:"use_gmd" toml:"use_gmd" yaml:"use_gmd"`          // use getMetricData instead of getMetricStatsistics
 }
 
 // AWSMetric defines an AWS metrics
 type AWSMetric struct {
-	Disabled bool     `json:"disabled" toml:"disabled" yaml:"disabled"` // disable collection (DEFAULT: false)
 	Name     string   `json:"name" toml:"name" yaml:"name"`             // REQUIRED
-	Stats    []string `json:"stats" toml:"stats" yaml:"stats"`          // REQUIRED
 	Units    string   `json:"units" toml:"units" yaml:"units"`          // REQUIRED
+	Stats    []string `json:"stats" toml:"stats" yaml:"stats"`          // REQUIRED
+	Disabled bool     `json:"disabled" toml:"disabled" yaml:"disabled"` // disable collection (DEFAULT: false)
 }
 
 // CirconusMetric defines a Circonus metric
@@ -66,7 +66,7 @@ type CirconusMetric struct {
 }
 
 // Metric maps a given metric between AWS and Circonus
-type Metric struct {
+type Metric struct { //nolint:govet
 	AWSMetric      AWSMetric      `json:"aws" toml:"aws" yaml:"aws"`                // REQUIRED
 	CirconusMetric CirconusMetric `json:"circonus" toml:"circonus" yaml:"circonus"` // REQUIRED
 }
@@ -254,27 +254,36 @@ func ConfigExample() ([]AWSCollector, error) {
 }
 
 // nolint: structcheck
-type common struct {
-	id           string
+type common struct { //nolint:govet
 	check        *circonus.Check
-	enabled      bool
-	disableCause string    // cause of a runtime disabling of the collector
-	disableTime  time.Time // time of runtime disabling (will try again every hour)
-	ctx          context.Context
 	dimensions   []*cloudwatch.Dimension
 	metrics      []Metric
+	id           string
+	disableCause string // cause of a runtime disabling of the collector
 	tags         circonus.Tags
+	ctx          context.Context
+	disableTime  time.Time // time of runtime disabling (will try again every hour)
 	useGMD       bool
+	enabled      bool
 	logger       zerolog.Logger
 }
 
 func newCommon(ctx context.Context, ns string, check *circonus.Check, cfg *AWSCollector, logger zerolog.Logger) common {
+	var dims []*cloudwatch.Dimension
+	if len(cfg.Dimensions) > 0 {
+		dims = make([]*cloudwatch.Dimension, 0, len(cfg.Dimensions))
+		for k, v := range cfg.Dimensions {
+			k := k
+			v := v
+			dims = append(dims, &cloudwatch.Dimension{Name: &k, Value: &v})
+		}
+	}
 	return common{
 		id:         ns,
 		enabled:    true,
 		ctx:        ctx,
 		check:      check,
-		dimensions: cfg.Dimensions,
+		dimensions: dims,
 		metrics:    cfg.Metrics,
 		tags:       cfg.Tags,
 		useGMD:     cfg.UseGMD,
@@ -350,7 +359,7 @@ func (c *common) ID() string {
 	return c.id
 }
 
-// done returns true if the context has been cancelled
+// done returns true if the context has been canceled
 func (c *common) done() bool {
 	select {
 	case <-c.ctx.Done():
