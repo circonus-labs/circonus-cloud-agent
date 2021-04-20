@@ -25,8 +25,8 @@ import (
 
 // ElastiCache defines the collector instance
 type ElastiCache struct {
-	common
 	clusterIDs *[]string
+	common
 }
 
 // newElastiCache creates a new ElastiCache telemetry collector
