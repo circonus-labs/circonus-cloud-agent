@@ -24,8 +24,8 @@ import (
 
 // EC2 defines the collector instance
 type EC2 struct {
-	common
 	filters *[]Filter
+	common
 }
 
 // ec2instance is an internal structure which contains the aws InstanceId
@@ -153,7 +153,7 @@ func (c *EC2) ec2Instances(sess client.ConfigProvider, baseTags circonus.Tags) (
 			}...)
 			if len(ec2inst.Tags) > 0 {
 				for _, tag := range ec2inst.Tags {
-					tc := strings.ToLower(strings.Replace(*tag.Key, ":", "_", -1))
+					tc := strings.ToLower(strings.ReplaceAll(*tag.Key, ":", "_"))
 					tv := strings.ToLower(*tag.Value)
 					streamTags = append(streamTags, circonus.Tag{Category: tc, Value: tv})
 				}

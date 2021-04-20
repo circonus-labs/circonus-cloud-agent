@@ -95,8 +95,8 @@ func (c *common) metricData(metricDest io.Writer, sess client.ConfigProvider, ti
 			for _, result := range results.MetricDataResults {
 				var metricStat string
 				var metricIdx, queryIdx int
-				if n, err := fmt.Sscanf(*result.Id, resultIDFormat, &metricIdx, &metricStat, &queryIdx); err != nil {
-					c.logger.Error().Err(err).Str("result_id", *result.Id).Msg("unable to extract cance/metric IDs from result id")
+				if n, err2 := fmt.Sscanf(*result.Id, resultIDFormat, &metricIdx, &metricStat, &queryIdx); err2 != nil {
+					c.logger.Error().Err(err2).Str("result_id", *result.Id).Msg("unable to extract cance/metric IDs from result id")
 					continue
 				} else if n != 2 {
 					c.logger.Error().Int("num_extracted", n).Str("result_id", *result.Id).Msg("unable to extract BOTH instance id and metric id from result id")
@@ -134,8 +134,8 @@ func (c *common) metricData(metricDest io.Writer, sess client.ConfigProvider, ti
 				metricDefinition := c.metrics[metricIdx]
 				samples := c.sortMetricDataSamples(result)
 				for _, sample := range samples {
-					if err := c.recordMetric(metricDest, metricDefinition, metricStat, sample.Value, sample.TS, metricTags); err != nil {
-						c.logger.Warn().Err(err).Str("aws_metric", metricDefinition.AWSMetric.Name).Msg("recording metric datapoint")
+					if err2 := c.recordMetric(metricDest, metricDefinition, metricStat, sample.Value, sample.TS, metricTags); err2 != nil {
+						c.logger.Warn().Err(err2).Str("aws_metric", metricDefinition.AWSMetric.Name).Msg("recording metric datapoint")
 					}
 				}
 
@@ -255,9 +255,9 @@ func (c *common) metricStats(metricDest io.Writer, sess client.ConfigProvider, t
 
 type msDatapoint struct {
 	Timestamp *time.Time
-	Value     float64
 	Units     string
 	Stat      string
+	Value     float64
 }
 
 func (c *common) sortMetricStatDatapoints(datapoints []*cloudwatch.Datapoint, md Metric) []msDatapoint {

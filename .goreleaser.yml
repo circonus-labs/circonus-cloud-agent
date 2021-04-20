@@ -1,50 +1,36 @@
 project_name: circonus-cloud-agent
 
 builds:
-    -
-        main: main.go
+  - id: cca
+    main: main.go
+    binary: sbin/circonus-cloud-agentd
+    env:
+      - CGO_ENABLED=0
+    flags: -tags dev
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+    ignore:
+      -
+        goarch: 386
+      - goos: darwin
+        goarch: arm
+      - goos: freebsd
+        goarch: arm
+    ldflags: -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.tag={{.Tag}}
 
-        binary: sbin/circonus-cloud-agentd
-
-        env:
-            - CGO_ENABLED=0
-
-        flags: -tags dev
-
-        goos:
-            - linux
-            - darwin
-            # - windows
-            # - freebsd
-            # - solaris
-
-        goarch:
-            - amd64
-#            - arm
-
-        ignore:
-            -
-                goarch: 386
-            - goos: darwin
-              goarch: arm
-            - goos: freebsd
-              goarch: arm
-
-        ldflags: -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}} -X main.tag={{.Tag}}
-
-archive:
+archives:
+  - id: default
     name_template: "{{.ProjectName}}_{{.Version}}_{{.Os}}_{{.Arch}}"
-
     format: tar.gz
-
     replacements:
-        amd64: x86_64
-
+      amd64: x86_64
     format_overrides:
-        -
-            goos: windows
-            format: zip
-
+      -
+        goos: windows
+        format: zip
     files:
         - LICENSE
         - README.md
@@ -52,15 +38,12 @@ archive:
         - etc/README.md
 
 release:
-    github:
-        owner: circonus-labs
-        name: circonus-cloud-agent
+  github:
+    owner: circonus-labs
+    name: circonus-cloud-agent
 
-    draft: false
-    prerelease: auto
-
-snapshot:
-    name_template: SNAPSHOT-{{.Commit}}
+  draft: false
+  prerelease: auto
 
 checksum:
     name_template: "{{.ProjectName}}_checksums.txt"

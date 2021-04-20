@@ -79,8 +79,10 @@ func (c *Check) SubmitMetrics(metricSrc io.Reader) error {
 		return err
 	}
 	if e := c.logger.Debug(); e.Enabled() {
-		e.Msg("Submitted data")
-		fmt.Printf("\n===BEGIN(%d)\n%s\n===END\n", time.Now().UTC().UnixNano(), mbuff)
+		if c.config.TraceMetrics {
+			e.Msg("Submitted data")
+			fmt.Printf("\n===BEGIN(%d)\n%s\n===END\n", time.Now().UTC().UnixNano(), mbuff)
+		}
 	}
 	req, err := http.NewRequest("PUT", subURL, bytes.NewReader(mbuff))
 	// return to this one when debugging submissions is complete
