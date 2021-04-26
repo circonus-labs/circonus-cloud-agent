@@ -219,8 +219,6 @@ func initLogging() error {
 		default:
 			return errors.Errorf("unknown log level (%s)", level)
 		}
-
-		log.Info().Str("log-level", level).Msg("Logging level")
 	}
 
 	return nil
