@@ -20,7 +20,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// ServiceConfig defines the Circonus configuration for a cloud service to include
+// ServiceConfig defines the Circonus configuration for a cloud service to include.
 type ServiceConfig struct {
 	CID          string `json:"cid" toml:"cid" yaml:"cid"`                               // OPTIONAL, cid of specific check bundle to use
 	BrokerCID    string `json:"broker_cid" toml:"broker_cid" yaml:"broker_cid"`          // OPTIONAL, default public trap broker
@@ -32,7 +32,7 @@ type ServiceConfig struct {
 	TraceMetrics bool   `json:"trace_metrics" toml:"trace_metrics" yaml:"trace_metrics"` // DEFAULT false - output each metric as it is sent
 }
 
-// Config options for a Circonus Check passed to New method
+// Config options for a Circonus Check passed to New method.
 type Config struct {
 	ID            string         // a unique identifier, used to search for a check bundle
 	CheckBundleID string         // a specific check bundle cid to use
@@ -44,26 +44,26 @@ type Config struct {
 	APIApp        string         // Circonus API Token app
 	APIURL        string         // Circonus API URL
 	APICAFile     string         // api ca file
-	Debug         bool           // turn on debugging messages
 	Logger        zerolog.Logger // logging instance to use
+	Debug         bool           // turn on debugging messages
 	TraceMetrics  bool           // output each metric as it is sent
 }
 
-// Check defines a Circonus check for a circonus-cloud-agent service
+// Check defines a Circonus check for a circonus-cloud-agent service.
 type Check struct {
 	sync.Mutex
 	apih            *apiclient.API
 	config          *Config
-	errorMetricName string
 	broker          *apiclient.Broker
 	brokerTLS       *tls.Config
 	bundle          *apiclient.CheckBundle
 	metricTypeRx    *regexp.Regexp // validate metric types
-	logger          zerolog.Logger
+	errorMetricName string
 	checkType       string
+	logger          zerolog.Logger
 }
 
-// logshim is used to satisfy apiclient Logger interface (avoiding ptr receiver issue)
+// logshim is used to satisfy apiclient Logger interface (avoiding ptr receiver issue).
 type logshim struct {
 	logh zerolog.Logger
 }
@@ -73,22 +73,22 @@ func (l logshim) Printf(fmt string, v ...interface{}) {
 }
 
 const (
-	// MetricTypeInt32 reconnoiter
+	// MetricTypeInt32 reconnoiter.
 	MetricTypeInt32 = "i"
 
-	// MetricTypeUint32 reconnoiter
+	// MetricTypeUint32 reconnoiter.
 	MetricTypeUint32 = "I"
 
-	// MetricTypeInt64 reconnoiter
+	// MetricTypeInt64 reconnoiter.
 	MetricTypeInt64 = "l"
 
-	// MetricTypeUint64 reconnoiter
+	// MetricTypeUint64 reconnoiter.
 	MetricTypeUint64 = "L"
 
-	// MetricTypeFloat64 reconnoiter
+	// MetricTypeFloat64 reconnoiter.
 	MetricTypeFloat64 = "n"
 
-	// MetricTypeString reconnoiter
+	// MetricTypeString reconnoiter.
 	MetricTypeString = "s"
 
 	// NOTE: max tags and metric name len are enforced here so that
@@ -97,10 +97,10 @@ const (
 	// without details on exactly which metric(s) caused the error.
 	// All metrics sent with the offending metric(s) are also rejected.
 
-	// MaxTags reconnoiter will accept in stream tagged metric name
+	// MaxTags reconnoiter will accept in stream tagged metric name.
 	MaxTags = 256 // sync w/MAX_TAGS https://github.com/circonus-labs/reconnoiter/blob/master/src/noit_metric.h#L41
 
-	// MaxMetricNameLen reconnoiter will accept (name+stream tags)
+	// MaxMetricNameLen reconnoiter will accept (name+stream tags).
 	MaxMetricNameLen = 4096 // sync w/MAX_METRIC_TAGGED_NAME https://github.com/circonus-labs/reconnoiter/blob/master/src/noit_metric.h#L40
 )
 
@@ -132,7 +132,7 @@ func NewCheck(svcID string, cfg *Config) (*Check, error) {
 
 	c := &Check{
 		config:          cfg,
-		errorMetricName: strings.ReplaceAll(release.NAME, "-", "_") + "_errors", // TODO: may become a config option
+		errorMetricName: strings.ReplaceAll(release.NAME, "-", "_") + "_errors", // TBD: may become a config option
 		logger:          cfg.Logger.With().Str("pkg", "check").Logger(),
 		metricTypeRx: regexp.MustCompile("^[" + strings.Join([]string{
 			MetricTypeInt32,
@@ -190,7 +190,7 @@ func (c *Check) RefreshCheck() error {
 	return nil
 }
 
-// initAPI creates and configures a Circonus API client
+// initAPI creates and configures a Circonus API client.
 func (c *Check) initAPI() error {
 	c.logger.Debug().Msg("initializing api client")
 	apiConfig := &apiclient.Config{
@@ -209,7 +209,7 @@ func (c *Check) initAPI() error {
 		if !cp.AppendCertsFromPEM(cert) {
 			return errors.New("unable to add API CA Certificate to x509 cert pool")
 		}
-		apiConfig.TLSConfig = &tls.Config{RootCAs: cp}
+		apiConfig.TLSConfig = &tls.Config{MinVersion: tls.VersionTLS12, RootCAs: cp}
 	}
 	client, err := apiclient.New(apiConfig)
 	if err != nil {

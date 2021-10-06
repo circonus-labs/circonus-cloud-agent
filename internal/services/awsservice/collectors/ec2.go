@@ -22,14 +22,14 @@ import (
 // handle AWS/EC2 specific tasks
 // https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-cloudwatch.html
 
-// EC2 defines the collector instance
+// EC2 defines the collector instance.
 type EC2 struct {
 	filters *[]Filter
 	common
 }
 
 // ec2instance is an internal structure which contains the aws InstanceId
-// and a list of base stream tags from the ec2 instance's meta data
+// and a list of base stream tags from the ec2 instance's meta data.
 type ec2instance struct {
 	id   string
 	tags circonus.Tags
@@ -168,7 +168,7 @@ func (c *EC2) ec2Instances(sess client.ConfigProvider, baseTags circonus.Tags) (
 	return ec2List, nil
 }
 
-// DefaultMetrics defines the default EC2 metrics
+// DefaultMetrics defines the default EC2 metrics.
 func (c *EC2) DefaultMetrics() []Metric {
 	return []Metric{
 		{

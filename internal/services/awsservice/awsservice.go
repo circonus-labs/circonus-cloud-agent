@@ -25,33 +25,33 @@ import (
 )
 
 const (
-	// KeyEnabled toggles whether the AWS module is active or not
+	// KeyEnabled toggles whether the AWS module is active or not.
 	KeyEnabled = "aws.enabled"
-	// DefaultEnabled defines the default setting
+	// DefaultEnabled defines the default setting.
 	DefaultEnabled = false
 
-	// KeyConfDir defines the aws configuration directory
+	// KeyConfDir defines the aws configuration directory.
 	KeyConfDir = "aws.conf_dir"
 
-	// KeyConfExample shows an example configuration
+	// KeyConfExample shows an example configuration.
 	KeyConfExample = "aws.config_example"
 )
 
 var (
-	// DefaultConfDir is the default location of aws configuration files
+	// DefaultConfDir is the default location of aws configuration files.
 	DefaultConfDir = path.Join(defaults.EtcPath, "aws.d")
 )
 
-// AWSService defines the AWS cloud service client
+// AWSService defines the AWS cloud service client.
 type AWSService struct {
-	enabled   bool
-	group     *errgroup.Group
 	groupCtx  context.Context
-	instances []*Instance
+	group     *errgroup.Group
 	logger    zerolog.Logger
+	instances []*Instance
+	enabled   bool
 }
 
-// New returns an AWS cloud service metric collector
+// New returns an AWS cloud service metric collector.
 func New(ctx context.Context) (*AWSService, error) {
 	if fmt := viper.GetString(KeyConfExample); fmt != "" {
 		if err := showExampleConfig(fmt, os.Stdout); err != nil {
@@ -92,17 +92,17 @@ func New(ctx context.Context) (*AWSService, error) {
 	return &svc, nil
 }
 
-// Enabled indicates whether the AWS service is enabled
+// Enabled indicates whether the AWS service is enabled.
 func (svc *AWSService) Enabled() bool {
 	return svc.enabled
 }
 
-// Scan checks the service config directory for configurations and loads them
+// Scan checks the service config directory for configurations and loads them.
 func (svc *AWSService) Scan() error {
 	return errors.New("not implemented")
 }
 
-// Start begins collecting metrics from AWS service
+// Start begins collecting metrics from AWS service.
 func (svc *AWSService) Start() error {
 	if !svc.enabled {
 		svc.logger.Info().Msg("AWS client disabled, not starting")

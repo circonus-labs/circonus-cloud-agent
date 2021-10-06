@@ -16,7 +16,7 @@ import (
 // handle AWS/ElasticTranscoder specific tasks
 // https://docs.aws.amazon.com/elastictranscoder/latest/developerguide/metrics-dimensions.html
 
-// ElasticTranscoder defines the collector instance
+// ElasticTranscoder defines the collector instance.
 type ElasticTranscoder struct {
 	common
 }
@@ -34,7 +34,7 @@ func newElasticTranscoder(ctx context.Context, check *circonus.Check, cfg *AWSCo
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *ElasticTranscoder) DefaultMetrics() []Metric {
 	havePipelineID := false
 	haveOperation := false

@@ -15,7 +15,7 @@ import (
 // handle AWS/EFS specific tasks
 // https://docs.aws.amazon.com/efs/latest/ug/monitoring-cloudwatch.html
 
-// EFS defines the collector instance
+// EFS defines the collector instance.
 type EFS struct {
 	common
 }
@@ -33,7 +33,7 @@ func newEFS(ctx context.Context, check *circonus.Check, cfg *AWSCollector, logge
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *EFS) DefaultMetrics() []Metric {
 	return []Metric{
 		{

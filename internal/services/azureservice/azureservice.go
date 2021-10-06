@@ -26,33 +26,33 @@ import (
 )
 
 const (
-	// KeyEnabled toggles whether the Azure module is active or not
+	// KeyEnabled toggles whether the Azure module is active or not.
 	KeyEnabled = "azure.enabled"
-	// DefaultEnabled defines the default setting
+	// DefaultEnabled defines the default setting.
 	DefaultEnabled = false
 
-	// KeyConfDir defines the azure configuration directory
+	// KeyConfDir defines the azure configuration directory.
 	KeyConfDir = "azure.conf_dir"
 
-	// KeyConfExample shows an example configuration
+	// KeyConfExample shows an example configuration.
 	KeyConfExample = "azure.config_example"
 )
 
 var (
-	// DefaultConfDir is the default location of azure configuration files
+	// DefaultConfDir is the default location of azure configuration files.
 	DefaultConfDir = path.Join(defaults.EtcPath, "azure.d")
 )
 
-// AzureService defines the Azure cloud service client
+// AzureService defines the Azure cloud service client.
 type AzureService struct {
-	enabled   bool
-	group     *errgroup.Group
 	groupCtx  context.Context
-	instances []*Instance
+	group     *errgroup.Group
 	logger    zerolog.Logger
+	instances []*Instance
+	enabled   bool
 }
 
-// New returns an Azure cloud service metric collection client
+// New returns an Azure cloud service metric collection client.
 func New(ctx context.Context) (*AzureService, error) {
 	if fmt := viper.GetString(KeyConfExample); fmt != "" {
 		if err := showExampleConfig(fmt, os.Stdout); err != nil {
@@ -93,17 +93,17 @@ func New(ctx context.Context) (*AzureService, error) {
 	return &svc, nil
 }
 
-// Enabled indicates whether the Azure service is enabled
+// Enabled indicates whether the Azure service is enabled.
 func (svc *AzureService) Enabled() bool {
 	return svc.enabled
 }
 
-// Scan checks the service config directory for configurations and loads them
+// Scan checks the service config directory for configurations and loads them.
 func (svc *AzureService) Scan() error {
 	return errors.New("not implemented")
 }
 
-// Start begins collecting metrics from Azure
+// Start begins collecting metrics from Azure.
 func (svc *AzureService) Start() error {
 	if !svc.enabled {
 		svc.logger.Info().Msg("Azure client disabled, not starting")
@@ -140,7 +140,7 @@ func (svc *AzureService) initInstances(confDir string) error {
 		if entry.IsDir() {
 			continue
 		}
-		if !strings.Contains(".json|.toml|.yaml", filepath.Ext(entry.Name())) {
+		if !strings.Contains(".json|.toml|.yaml", filepath.Ext(entry.Name())) { //nolint:gocritic
 			continue
 		}
 

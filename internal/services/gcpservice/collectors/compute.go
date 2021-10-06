@@ -20,7 +20,7 @@ import (
 	"google.golang.org/api/option"
 )
 
-// Compute holds definition for the gcp gce collector
+// Compute holds definition for the gcp gce collector.
 type Compute struct {
 	common
 }
@@ -42,7 +42,7 @@ func newCompute(ctx context.Context, check *circonus.Check, cfg *GCPCollector, i
 	return c, nil
 }
 
-// Collect telemetry from gce instance resources in project
+// Collect telemetry from gce instance resources in project.
 func (c *Compute) Collect(timeseriesStart, timeseriesEnd time.Time, projectID string, creds []byte, baseTags circonus.Tags) error {
 
 	if !c.enabled {
@@ -112,13 +112,13 @@ func (c *Compute) Collect(timeseriesStart, timeseriesEnd time.Time, projectID st
 	return nil
 }
 
-// instanceInfo holds the meta data per gce instance used to collect telemetry metrics
+// instanceInfo holds the meta data per gce instance used to collect telemetry metrics.
 type instanceInfo struct {
 	region string
 	name   string
 }
 
-// getInstanceList returns a list of gce instances
+// getInstanceList returns a list of gce instances.
 func (c *Compute) getInstanceList(projectID string, creds []byte) ([]instanceInfo, error) {
 	emptyList := []instanceInfo{}
 
@@ -172,7 +172,7 @@ func (c *Compute) getInstanceList(projectID string, creds []byte) ([]instanceInf
 				continue
 			}
 			for _, gceInstance := range item.Instances {
-				if gceInstance.Status != "RUNNING" { // TODO: TBD, include STOPPING and SUSPENDING
+				if gceInstance.Status != "RUNNING" { // TBD: include STOPPING and SUSPENDING
 					continue
 				}
 

@@ -14,25 +14,25 @@ import (
 )
 
 const (
-	// APIURL for circonus
+	// APIURL for circonus.
 	APIURL = "https://api.circonus.com/v2/"
 
-	// APIApp defines the api app name associated with the api token key
+	// APIApp defines the api app name associated with the api token key.
 	APIApp = release.NAME
 
-	// APIDebug is false by default
+	// APIDebug is false by default.
 	APIDebug = false
 
-	// Debug is false by default
+	// Debug is false by default.
 	Debug = false
 
-	// MetricNameSeparator defines character used to delimit metric name parts
+	// MetricNameSeparator defines character used to delimit metric name parts.
 	MetricNameSeparator = "`"
 
-	// LogLevel set to info by default
+	// LogLevel set to info by default.
 	LogLevel = "info"
 
-	// LogPretty colored/formatted output to stderr
+	// LogPretty colored/formatted output to stderr.
 	LogPretty = false
 )
 
@@ -46,10 +46,10 @@ var (
 	//   /sbin     (e.g. /opt/circonus/cloud-agent/sbin)
 	BasePath = ""
 
-	// ConfigFile defines the default configuration file name
+	// ConfigFile defines the default configuration file name.
 	ConfigFile = ""
 
-	// EtcPath returns the default etc directory within base directory
+	// EtcPath returns the default etc directory within base directory.
 	EtcPath = "" // (e.g. /opt/circonus/cloud-agent/etc)
 )
 

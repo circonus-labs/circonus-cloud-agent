@@ -15,7 +15,7 @@ import (
 // handle AWS/TransitGateway specific tasks
 // https://docs.aws.amazon.com/vpc/latest/tgw/transit-gateway-cloudwatch-metrics.html
 
-// TransitGateway defines the collector instance
+// TransitGateway defines the collector instance.
 type TransitGateway struct {
 	common
 }
@@ -33,7 +33,7 @@ func newTransitGateway(ctx context.Context, check *circonus.Check, cfg *AWSColle
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *TransitGateway) DefaultMetrics() []Metric {
 	return []Metric{
 		{

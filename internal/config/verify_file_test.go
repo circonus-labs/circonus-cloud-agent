@@ -15,13 +15,13 @@ func TestVerifyFile(t *testing.T) {
 	tests := []struct {
 		id          string
 		file        string
-		shouldFail  bool
 		expectedErr string
+		shouldFail  bool
 	}{
-		{"invalid - empty", "", true, "invalid file name (empty)"},
-		{"invalid - missing", filepath.Join("testdata", "missing"), true, "no such file or directory"},
-		{"invalid - not a file", filepath.Join("testdata", "not_a_file"), true, "not a regular file"},
-		{"valid", filepath.Join("testdata", "test.file"), false, ""},
+		{id: "invalid - empty", file: "", shouldFail: true, expectedErr: "invalid file name (empty)"},
+		{id: "invalid - missing", file: filepath.Join("testdata", "missing"), shouldFail: true, expectedErr: "no such file or directory"},
+		{id: "invalid - not a file", file: filepath.Join("testdata", "not_a_file"), shouldFail: true, expectedErr: "not a regular file"},
+		{id: "valid", file: filepath.Join("testdata", "test.file"), shouldFail: false, expectedErr: ""},
 	}
 
 	for _, test := range tests {

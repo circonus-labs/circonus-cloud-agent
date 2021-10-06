@@ -9,16 +9,16 @@ import (
 	"bytes"
 )
 
-// ReportError to Circonus check
+// ReportError to Circonus check.
 func (c *Check) ReportError(err error) {
 	var buf bytes.Buffer
 
-	if err := c.WriteMetricSample(&buf, c.errorMetricName, MetricTypeString, err.Error(), nil); err != nil {
-		c.logger.Error().Err(err).Msg("writing error metric sample")
+	if e := c.WriteMetricSample(&buf, c.errorMetricName, MetricTypeString, err.Error(), nil); err != nil {
+		c.logger.Error().Err(e).Msg("writing error metric sample")
 		return
 	}
 
-	if err := c.SubmitMetrics(&buf); err != nil {
-		c.logger.Error().Err(err).Msg("submitting error metric sample")
+	if e := c.SubmitMetrics(&buf); e != nil {
+		c.logger.Error().Err(e).Msg("submitting error metric sample")
 	}
 }

@@ -15,7 +15,7 @@ import (
 // handle AWS/EC2AutoScaling specific tasks
 // https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-instance-monitoring.html
 
-// EC2AutoScaling defines the collector instance
+// EC2AutoScaling defines the collector instance.
 type EC2AutoScaling struct {
 	common
 }
@@ -33,7 +33,7 @@ func newEC2AutoScaling(ctx context.Context, check *circonus.Check, cfg *AWSColle
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *EC2AutoScaling) DefaultMetrics() []Metric {
 	return []Metric{
 		{

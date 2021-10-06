@@ -15,7 +15,7 @@ import (
 // handle AWS/ElasticInterface specific tasks
 // https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/cloudwatch-metrics-ei.html#ei-metrics-dimensions
 
-// ElasticInterface defines the collector instance
+// ElasticInterface defines the collector instance.
 type ElasticInterface struct {
 	common
 }
@@ -33,7 +33,7 @@ func newElasticInterface(ctx context.Context, check *circonus.Check, cfg *AWSCol
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *ElasticInterface) DefaultMetrics() []Metric {
 	return []Metric{
 		{

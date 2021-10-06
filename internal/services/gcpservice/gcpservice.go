@@ -32,33 +32,33 @@ import (
 )
 
 const (
-	// KeyEnabled toggles whether the GCP module is active or not
+	// KeyEnabled toggles whether the GCP module is active or not.
 	KeyEnabled = "gcp.enabled"
-	// DefaultEnabled defines the default setting
+	// DefaultEnabled defines the default setting.
 	DefaultEnabled = false
 
-	// KeyConfDir defines the gcp configuration directory
+	// KeyConfDir defines the gcp configuration directory.
 	KeyConfDir = "gcp.conf_dir"
 
-	// KeyConfExample shows an example configuration
+	// KeyConfExample shows an example configuration.
 	KeyConfExample = "gcp.config_example"
 )
 
 var (
-	// DefaultConfDir is the default location of gcp configuration files
+	// DefaultConfDir is the default location of gcp configuration files.
 	DefaultConfDir = path.Join(defaults.EtcPath, "gcp.d")
 )
 
-// GCPService defines the GCP cloud service client
+// GCPService defines the GCP cloud service client.
 type GCPService struct {
-	enabled   bool
-	group     *errgroup.Group
 	groupCtx  context.Context
-	instances []*Instance
+	group     *errgroup.Group
 	logger    zerolog.Logger
+	instances []*Instance
+	enabled   bool
 }
 
-// New returns a GCP metric collector service
+// New returns a GCP metric collector service.
 func New(ctx context.Context) (*GCPService, error) {
 	if fmt := viper.GetString(KeyConfExample); fmt != "" {
 		if err := showExampleConfig(fmt, os.Stdout); err != nil {
@@ -99,12 +99,12 @@ func New(ctx context.Context) (*GCPService, error) {
 	return &svc, nil
 }
 
-// Enabled indicates whether the GCP service is enabled
+// Enabled indicates whether the GCP service is enabled.
 func (svc *GCPService) Enabled() bool {
 	return svc.enabled
 }
 
-// Scan checks the service config directory for configurations and loads them
+// Scan checks the service config directory for configurations and loads them.
 func (svc *GCPService) Scan() error {
 	if !svc.enabled {
 		svc.logger.Info().Msg("client disabled, not checking for configurations")
@@ -114,7 +114,7 @@ func (svc *GCPService) Scan() error {
 	return errors.New("not implemented")
 }
 
-// Start begins collecting metrics from GCP
+// Start begins collecting metrics from GCP.
 func (svc *GCPService) Start() error {
 	if !svc.enabled {
 		svc.logger.Info().Msg("client disabled, not starting")
@@ -150,7 +150,7 @@ func (svc *GCPService) initInstances(confDir string) error {
 		if entry.IsDir() {
 			continue
 		}
-		if !strings.Contains(".json|.toml|.yaml", filepath.Ext(entry.Name())) {
+		if !strings.Contains(".json|.toml|.yaml", filepath.Ext(entry.Name())) { //nolint:gocritic
 			continue
 		}
 
@@ -212,12 +212,12 @@ func (svc *GCPService) instanceFromConfig(cfgFile string) (*Instance, error) {
 	var v struct {
 		ProjectID string `json:"project_id"`
 	}
-	if err := json.Unmarshal(data, &v); err != nil {
+	if err = json.Unmarshal(data, &v); err != nil {
 		return nil, err
 	}
 	instance.cfg.GCP.projectID = v.ProjectID
 
-	if err := instance.loadProjectMeta(); err != nil {
+	if err = instance.loadProjectMeta(); err != nil {
 		return nil, err
 	}
 

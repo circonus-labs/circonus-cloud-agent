@@ -23,7 +23,7 @@ import (
 // updated doc link: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using_cloudwatch_ebs.html
 // original doc link (no longer works): https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/EBS-cloudwatch-metrics.html
 
-// EBS defines the collector instance
+// EBS defines the collector instance.
 type EBS struct {
 	common
 }
@@ -164,7 +164,7 @@ func (c *EBS) ebsVolumes(sess client.ConfigProvider, baseTags circonus.Tags) ([]
 	return ebsVolumes, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *EBS) DefaultMetrics() []Metric {
 	return []Metric{
 		{

@@ -18,7 +18,7 @@ import (
 // NOTE: the dynamo db metrics pretty much require user defines dimensions - see link for details
 //       regarding which dimensions apply to which metrics
 
-// DynamoDB defines the collector instance
+// DynamoDB defines the collector instance.
 type DynamoDB struct {
 	common
 }
@@ -39,7 +39,7 @@ func newDynamoDB(ctx context.Context, check *circonus.Check, cfg *AWSCollector, 
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *DynamoDB) DefaultMetrics() []Metric {
 	return []Metric{
 		{

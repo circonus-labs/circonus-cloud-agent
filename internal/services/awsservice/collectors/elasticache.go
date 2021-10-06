@@ -8,6 +8,7 @@ package collectors
 import (
 	"bytes"
 	"context"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -23,13 +24,13 @@ import (
 // handle AWS/ElastiCache specific tasks
 // https://docs.aws.amazon.com/AWSElastiCache/latest/UserGuide/using-cloudwatch.html
 
-// ElastiCache defines the collector instance
+// ElastiCache defines the collector instance.
 type ElastiCache struct {
 	clusterIDs *[]string
 	common
 }
 
-// newElastiCache creates a new ElastiCache telemetry collector
+// newElastiCache creates a new ElastiCache telemetry collector.
 func newElastiCache(ctx context.Context, check *circonus.Check, cfg *AWSCollector, logger zerolog.Logger) (Collector, error) {
 	ns := "AWS/ElastiCache"
 	c := &ElastiCache{
@@ -121,8 +122,9 @@ func (c *ElastiCache) clusterList(sess client.ConfigProvider) (map[string][]stri
 			}
 			cl, err := ecSvc.DescribeCacheClusters(dcci)
 			if err != nil {
-				if _, ok := err.(awserr.Error); ok {
-					return nil, errors.Wrap(err, "describing cluster")
+				var awsErr awserr.Error
+				if errors.As(err, &awsErr) {
+					return nil, fmt.Errorf("describing cluster: %w", err)
 				}
 				c.logger.Warn().Err(err).Str("cluster_id", id).Msg("describing elasticache cluster, skipping")
 				continue
@@ -147,7 +149,7 @@ func (c *ElastiCache) clusterList(sess client.ConfigProvider) (map[string][]stri
 	}
 	cl, err := ecSvc.DescribeCacheClusters(dcci)
 	if err != nil {
-		return nil, errors.Wrap(err, "describing elasticache clusters")
+		return nil, fmt.Errorf("describing elasticache clusters: %w", err)
 	}
 	for _, cluster := range cl.CacheClusters {
 		if *cluster.CacheClusterStatus != "available" {

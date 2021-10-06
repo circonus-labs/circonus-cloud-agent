@@ -17,7 +17,7 @@ import (
 // handle AWS/ApplicationELB specific tasks
 // https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html
 
-// ApplicationELB defines the collector instance
+// ApplicationELB defines the collector instance.
 type ApplicationELB struct {
 	common
 }
@@ -38,7 +38,7 @@ func newApplicationELB(ctx context.Context, check *circonus.Check, cfg *AWSColle
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *ApplicationELB) DefaultMetrics() []Metric {
 	haveLoadBalancer := false
 	haveAvailabilityZone := false

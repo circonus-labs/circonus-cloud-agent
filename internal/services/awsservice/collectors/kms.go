@@ -15,7 +15,7 @@ import (
 // handle AWS/KMS specific tasks
 // https://docs.aws.amazon.com/kms/latest/developerguide/monitoring-cloudwatch.html
 
-// KMS defines the collector instance
+// KMS defines the collector instance.
 type KMS struct {
 	common
 }
@@ -35,7 +35,7 @@ func newKMS(ctx context.Context, check *circonus.Check, cfg *AWSCollector, logge
 
 // DefaultMetrics returns a default metric configuration
 // Metric is only valid for EXTERNAL CMKs
-// Dimension: KeyId
+// Dimension: KeyId.
 func (c *KMS) DefaultMetrics() []Metric {
 	return []Metric{
 		{

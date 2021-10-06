@@ -15,7 +15,7 @@ import (
 // handle AWS/ES specific tasks
 // https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-managedomains.html#es-managedomains-cloudwatchmetrics
 
-// ES defines the collector instance
+// ES defines the collector instance.
 type ES struct {
 	common
 }
@@ -33,7 +33,7 @@ func newES(ctx context.Context, check *circonus.Check, cfg *AWSCollector, logger
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *ES) DefaultMetrics() []Metric {
 	return []Metric{
 		{

@@ -15,7 +15,7 @@ import (
 // handle AWS/RDS specific tasks
 // https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MonitoringOverview.html#monitoring-cloudwatch
 
-// RDS defines the collector instance
+// RDS defines the collector instance.
 type RDS struct {
 	common
 }
@@ -33,7 +33,7 @@ func newRDS(ctx context.Context, check *circonus.Check, cfg *AWSCollector, logge
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *RDS) DefaultMetrics() []Metric {
 	return []Metric{
 		{

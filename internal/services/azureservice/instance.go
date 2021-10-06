@@ -21,17 +21,17 @@ import (
 // Note: a Instance has a 1:1 relation with azure:circ - each Instance has (or, may have)
 // a different set of azure and/or circonus credentials.
 type Instance struct {
-	cfg       *Config
-	ctx       context.Context
-	logger    zerolog.Logger
-	check     *circonus.Check
-	baseTags  circonus.Tags
-	lastStart *time.Time
-	running   bool
 	sync.Mutex
+	ctx       context.Context
+	cfg       *Config
+	check     *circonus.Check
+	lastStart *time.Time
+	logger    zerolog.Logger
+	baseTags  circonus.Tags
+	running   bool
 }
 
-// Start runs the instance based on the configured interval
+// Start runs the instance based on the configured interval.
 func (inst *Instance) Start() error {
 	interval := time.Duration(inst.cfg.Azure.Interval) * time.Minute
 
@@ -85,7 +85,7 @@ func (inst *Instance) Start() error {
 	}
 }
 
-// collect metrics from Azure and forward to Circonus using buffer
+// collect metrics from Azure and forward to Circonus using buffer.
 func (inst *Instance) collect(endTime time.Time) error {
 	// NOTE: this model needs to be used, so submission requests will have
 	// a Content-Length while streaming JSON data:
@@ -151,7 +151,7 @@ func (inst *Instance) collect(endTime time.Time) error {
 	return nil
 }
 
-// done is a utility routine to check the context, returns true if done
+// done is a utility routine to check the context, returns true if done.
 func (inst *Instance) done() bool {
 	select {
 	case <-inst.ctx.Done():

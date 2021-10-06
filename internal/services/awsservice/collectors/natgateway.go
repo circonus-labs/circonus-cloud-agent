@@ -15,7 +15,7 @@ import (
 // handle AWS/NATGateway specific tasks
 // https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway-cloudwatch.html
 
-// NATGateway defines the collector instance
+// NATGateway defines the collector instance.
 type NATGateway struct {
 	common
 }
@@ -33,7 +33,7 @@ func newNATGateway(ctx context.Context, check *circonus.Check, cfg *AWSCollector
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *NATGateway) DefaultMetrics() []Metric {
 	return []Metric{
 		{

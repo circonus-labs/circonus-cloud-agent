@@ -25,7 +25,7 @@ import (
 
 var cfgFile string
 
-// RootCmd represents the base command when called without any subcommands
+// RootCmd represents the base command when called without any subcommands.
 var RootCmd = &cobra.Command{
 	Use:   "circonus-cloud-agent",
 	Short: "Agent to collect metrics from cloud infrastructures",
@@ -163,7 +163,7 @@ func initConfig() {
 	}
 }
 
-// initApp initializes the application components
+// initApp initializes the application components.
 func initApp(cmd *cobra.Command, args []string) error {
 	if err := initLogging(); err != nil {
 		return err
@@ -171,8 +171,7 @@ func initApp(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// initLogging initializes zerolog
-// func initLogging(cmd *cobra.Command, args []string) error {
+// initLogging initializes zerolog.
 func initLogging() error {
 	//
 	// Enable formatted output
@@ -219,8 +218,6 @@ func initLogging() error {
 		default:
 			return errors.Errorf("unknown log level (%s)", level)
 		}
-
-		log.Info().Str("log-level", level).Msg("Logging level")
 	}
 
 	return nil

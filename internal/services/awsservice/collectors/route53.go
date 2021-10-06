@@ -17,7 +17,7 @@ import (
 // NOTE: most of the route53 metrics require user defines dimensions - see link for details
 //       regarding which dimensions apply to which metrics
 
-// Route53 defines the collector instance
+// Route53 defines the collector instance.
 type Route53 struct {
 	common
 }
@@ -35,7 +35,7 @@ func newRoute53(ctx context.Context, check *circonus.Check, cfg *AWSCollector, l
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *Route53) DefaultMetrics() []Metric {
 	return []Metric{
 		{

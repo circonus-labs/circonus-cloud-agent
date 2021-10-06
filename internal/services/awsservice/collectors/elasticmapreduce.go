@@ -15,7 +15,7 @@ import (
 // handle AWS/ElasticMapReduce specific tasks
 // https://docs.aws.amazon.com/emr/latest/ManagementGuide/UsingEMR_ViewingMetrics.html#UsingEMR_ViewingMetrics_MetricsReported
 
-// ElasticMapReduce defines the collector instance
+// ElasticMapReduce defines the collector instance.
 type ElasticMapReduce struct {
 	common
 }
@@ -33,7 +33,7 @@ func newElasticMapReduce(ctx context.Context, check *circonus.Check, cfg *AWSCol
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *ElasticMapReduce) DefaultMetrics() []Metric {
 	return []Metric{
 		// Hadoop 2.x clusters

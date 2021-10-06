@@ -45,7 +45,7 @@ type Instance struct {
 }
 
 // initInstances creates a new set of region Instances for each configuration
-// file (.json,.toml,.yaml) found in the passed confDir
+// file (.json,.toml,.yaml) found in the passed confDir.
 func (svc *AWSService) initInstances(confDir string) error {
 	if confDir == "" {
 		return errors.New("invalid config dir (empty)")
@@ -61,7 +61,7 @@ func (svc *AWSService) initInstances(confDir string) error {
 		if entry.IsDir() {
 			continue
 		}
-		if !strings.Contains(".json|.toml|.yaml", filepath.Ext(entry.Name())) {
+		if !strings.Contains(".json|.toml|.yaml", filepath.Ext(entry.Name())) { //nolint:gocritic
 			continue
 		}
 
@@ -153,7 +153,7 @@ func (svc *AWSService) initInstances(confDir string) error {
 	return nil
 }
 
-// Start metric collections based on the configured interval - intended to be run in a goroutine (e.g. errgroup)
+// Start metric collections based on the configured interval - intended to be run in a goroutine (e.g. errgroup).
 func (inst *Instance) Start() error {
 	interval := time.Duration(inst.interval) * time.Second
 
@@ -237,7 +237,7 @@ func (inst *Instance) Start() error {
 	}
 }
 
-// done is a utility routine to check the context, returns true if done
+// done is a utility routine to check the context, returns true if done.
 func (inst *Instance) done() bool {
 	select {
 	case <-inst.ctx.Done():
@@ -248,7 +248,7 @@ func (inst *Instance) done() bool {
 	}
 }
 
-// createSession returns a new aws session using configured aws information
+// createSession returns a new aws session using configured aws information.
 func (inst *Instance) createSession(region string) (*session.Session, error) {
 	var creds *credentials.Credentials
 

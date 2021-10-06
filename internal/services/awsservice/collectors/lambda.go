@@ -15,7 +15,7 @@ import (
 // handle AWS/Lambda specific tasks
 // https://docs.aws.amazon.com/vpc/latest/tgw/transit-gateway-cloudwatch-metrics.html
 
-// Lambda defines the collector instance
+// Lambda defines the collector instance.
 type Lambda struct {
 	common
 }
@@ -33,7 +33,7 @@ func newLambda(ctx context.Context, check *circonus.Check, cfg *AWSCollector, lo
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *Lambda) DefaultMetrics() []Metric {
 	return []Metric{
 		{

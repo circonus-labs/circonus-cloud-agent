@@ -15,7 +15,7 @@ import (
 // handle AWS/Route53Resolver specific tasks
 // https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/monitoring-resolver-with-cloudwatch.html
 
-// Route53Resolver defines the collector instance
+// Route53Resolver defines the collector instance.
 type Route53Resolver struct {
 	common
 }
@@ -33,7 +33,7 @@ func newRoute53Resolver(ctx context.Context, check *circonus.Check, cfg *AWSColl
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *Route53Resolver) DefaultMetrics() []Metric {
 	return []Metric{
 		{
