@@ -18,7 +18,7 @@ import (
 )
 
 // getResourceMetrics collects metrics using azure api for a given resource id
-// and writes them to the metric destination
+// and writes them to the metric destination.
 func (inst *Instance) getResourceMetrics(
 	metricDest io.Writer,
 	auth autorest.Authorizer,
@@ -75,7 +75,7 @@ func (inst *Instance) getResourceMetrics(
 
 // handleMetricGroup retrieves metric samples for a group of metrics (based on
 // azure api limit) and handles processing and writing each metric sample to the
-// metric destination
+// metric destination.
 func (inst *Instance) handleMetricGroup(
 	metricDest io.Writer,
 	auth autorest.Authorizer,
@@ -140,7 +140,7 @@ type metricSamples struct {
 }
 type metricData map[string]metricSamples
 
-// getMetricData uses Azure API to retrieve metric samples for a resource
+// getMetricData uses Azure API to retrieve metric samples for a resource.
 func (inst *Instance) getMetricData(
 	auth autorest.Authorizer,
 	resourceID string,
@@ -237,7 +237,7 @@ func (inst *Instance) extractSamples(timeseries *[]insights.TimeSeriesElement, a
 	return samples
 }
 
-// getMetricList retrieves a list of viable metrics for a given resource
+// getMetricList retrieves a list of viable metrics for a given resource.
 func (inst *Instance) getMetricList(auth autorest.Authorizer, resourceID string) (map[string]map[string][]string, error) {
 	// ref: https://godoc.org/github.com/Azure/azure-sdk-for-go/services/preview/monitor/mgmt/2018-09-01/insights
 

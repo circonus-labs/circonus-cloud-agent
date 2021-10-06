@@ -13,7 +13,7 @@ import (
 )
 
 // Config defines an AWS service instance configuration
-// NOTE: warning - ID must be thought of as immutable - if it changes a new check will be created
+// NOTE: warning - ID must be thought of as immutable - if it changes a new check will be created.
 type Config struct {
 	ID       string                 `json:"id" toml:"id" yaml:"id"`                   // unique id for this service client instance, no spaces (ties several things together, short and immutable - logging, check search/create, tags, etc.)
 	Regions  []AWSRegion            `json:"regions" toml:"regions" yaml:"regions"`    // list of region specific configurations
@@ -23,14 +23,14 @@ type Config struct {
 	Tags     circonus.Tags          `json:"tags" toml:"tags" yaml:"tags"`             // global tags, added to all metrics
 }
 
-// AWSRegion defines a specific aws region from which to collect metrics
+// AWSRegion defines a specific aws region from which to collect metrics.
 type AWSRegion struct {
 	Name     string                    `json:"name" toml:"name" yaml:"name"`             // e.g. us-east-1
 	Services []collectors.AWSCollector `json:"services" toml:"services" yaml:"services"` // which services to collectc metrics for in this region
 	Tags     circonus.Tags             `json:"tags" toml:"tags" yaml:"tags"`             // region tags (default region:Name)
 }
 
-// AWS defines the credentials to use for AWS
+// AWS defines the credentials to use for AWS.
 type AWS struct {
 	//
 	// Runs in ONE of two ways: shared or local

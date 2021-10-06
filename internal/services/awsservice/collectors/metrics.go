@@ -301,7 +301,7 @@ func (c *common) sortMetricStatDatapoints(datapoints []*cloudwatch.Datapoint, md
 	return samples
 }
 
-// recordMetric creates a metric name w/encoded stream tags then writes the metric sample to the metric destination
+// recordMetric creates a metric name w/encoded stream tags then writes the metric sample to the metric destination.
 func (c *common) recordMetric(metricDest io.Writer, metric Metric, metricStat string, val interface{}, ts *time.Time, baseTags circonus.Tags) error {
 	mn := metric.CirconusMetric.Name
 	if mn == "" {

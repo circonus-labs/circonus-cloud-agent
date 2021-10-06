@@ -15,7 +15,7 @@ import (
 // handle AWS/S3 specific tasks
 // https://docs.aws.amazon.com/AmazonS3/latest/dev/cloudwatch-monitoring.html
 
-// S3 defines the collector instance
+// S3 defines the collector instance.
 type S3 struct {
 	common
 }
@@ -33,7 +33,7 @@ func newS3(ctx context.Context, check *circonus.Check, cfg *AWSCollector, logger
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *S3) DefaultMetrics() []Metric {
 	return []Metric{
 		{

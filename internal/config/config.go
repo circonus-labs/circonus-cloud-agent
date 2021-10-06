@@ -19,7 +19,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// Log defines the running config.log structure
+// Log defines the running config.log structure.
 type Log struct {
 	Level  string `json:"level" yaml:"level" toml:"level"`
 	Pretty bool   `json:"pretty" yaml:"pretty" toml:"pretty"`
@@ -34,37 +34,36 @@ type Log struct {
 // 	Debug  bool   `json:"debug" yaml:"debug" toml:"debug"`
 // }
 
-// Config defines the running config structure
+// Config defines the running config structure.
 type Config struct {
-	// API   API          `json:"api" yaml:"api" toml:"api"`
-	Debug       bool         `json:"debug" yaml:"debug" toml:"debug"`
-	Log         Log          `json:"log" yaml:"log" toml:"log"`
 	AWS         *AWSConfig   `json:"aws" toml:"aws" yaml:"aws"`
 	Azure       *AzureConfig `json:"azure" toml:"azure" yaml:"azure"`
 	GCP         *GCPConfig   `json:"gcp" toml:"gcp" yaml:"gcp"`
+	Log         Log          `json:"log" yaml:"log" toml:"log"`
+	Debug       bool         `json:"debug" yaml:"debug" toml:"debug"`
 	PipeSubmits bool         `json:"pipe_submits" toml:"pipe_submits" yaml:"pipe_submits"`
 }
 
-// AWSConfig defines the AWS cloud service configuration
+// AWSConfig defines the AWS cloud service configuration.
 type AWSConfig struct {
-	Enabled bool   `json:"enabled" toml:"enabled" yaml:"enabled"`
 	ConfDir string `json:"conf_dir" toml:"conf_dir" yaml:"conf_dir"`
+	Enabled bool   `json:"enabled" toml:"enabled" yaml:"enabled"`
 }
 
-// AzureConfig defines the Azure cloud service configuration
+// AzureConfig defines the Azure cloud service configuration.
 type AzureConfig struct {
-	Enabled bool   `json:"enabled" toml:"enabled" yaml:"enabled"`
 	ConfDir string `json:"conf_dir" toml:"conf_dir" yaml:"conf_dir"`
+	Enabled bool   `json:"enabled" toml:"enabled" yaml:"enabled"`
 }
 
-// GCPConfig defines the AWS cloud service configuration
+// GCPConfig defines the AWS cloud service configuration.
 type GCPConfig struct {
-	Enabled bool   `json:"enabled" toml:"enabled" yaml:"enabled"`
 	ConfDir string `json:"conf_dir" toml:"conf_dir" yaml:"conf_dir"`
+	Enabled bool   `json:"enabled" toml:"enabled" yaml:"enabled"`
 }
 
 //
-// NOTE: adding a Key* MUST be reflected in the Config structures above
+// NOTE: adding a Key* MUST be reflected in the Config structures above.
 //
 const (
 	// // KeyAPICAFile custom ca for circonus api (e.g. inside)
@@ -81,32 +80,34 @@ const (
 	//
 	// // KeyAPIDebug turns on debugging for circonus api calls
 	// KeyAPIDebug = "api.debug"
+	//
+	// settings not currently used, above.
 
-	// KeyDebug enables debug messages
+	// KeyDebug enables debug messages.
 	KeyDebug = "debug"
 
-	// KeyLogLevel logging level (panic, fatal, error, warn, info, debug, disabled)
+	// KeyLogLevel logging level (panic, fatal, error, warn, info, debug, disabled).
 	KeyLogLevel = "log.level"
 
-	// KeyLogPretty output formatted log lines (for running in foreground)
+	// KeyLogPretty output formatted log lines (for running in foreground).
 	KeyLogPretty = "log.pretty"
 
-	// KeyShowConfig - show configuration and exit
+	// KeyShowConfig - show configuration and exit.
 	KeyShowConfig = "show-config"
 
-	// KeyShowVersion - show version information and exit
+	// KeyShowVersion - show version information and exit.
 	KeyShowVersion = "version"
 
 	// KeyPipeSubmits - use io pipe for metric submissions (experimental)
-	// KeyPipeSubmits = "pipe_submits"
+	// KeyPipeSubmits = "pipe_submits".
 )
 
 var (
-	// MetricNameSeparator defines character used to delimit metric name parts
+	// MetricNameSeparator defines character used to delimit metric name parts.
 	MetricNameSeparator = defaults.MetricNameSeparator // var, TBD whether it will become configurable
 )
 
-// Validate verifies the required portions of the configuration
+// Validate verifies the required portions of the configuration.
 func Validate() error {
 
 	// err := validateAPIOptions()
@@ -117,7 +118,7 @@ func Validate() error {
 	return nil
 }
 
-// StatConfig adds the running config to the app stats
+// StatConfig adds the running config to the app stats.
 func StatConfig() error {
 	cfg, err := getConfig()
 	if err != nil {
@@ -134,7 +135,7 @@ func StatConfig() error {
 	return nil
 }
 
-// getConfig dumps the current configuration and returns it
+// getConfig dumps the current configuration and returns it.
 func getConfig() (*Config, error) {
 	var cfg *Config
 
@@ -145,7 +146,7 @@ func getConfig() (*Config, error) {
 	return cfg, nil
 }
 
-// ShowConfig prints the running configuration
+// ShowConfig prints the running configuration.
 func ShowConfig(w io.Writer) error {
 	var cfg *Config
 	var err error

@@ -15,7 +15,7 @@ import (
 // handle AWS/DX specific tasks
 // https://docs.aws.amazon.com/directconnect/latest/UserGuide/monitoring-cloudwatch.html
 
-// DX defines the collector instance
+// DX defines the collector instance.
 type DX struct {
 	common
 }
@@ -33,7 +33,7 @@ func newDX(ctx context.Context, check *circonus.Check, cfg *AWSCollector, logger
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *DX) DefaultMetrics() []Metric {
 	return []Metric{
 		{

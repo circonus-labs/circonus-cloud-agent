@@ -17,7 +17,7 @@ import (
 // handle AWS/CloudFront specific tasks
 // https://docs.aws.amazon.com/CloudFront/latest/DeveloperGuide/monitoring-cloudwatch.html
 
-// CloudFront defines the collector instance
+// CloudFront defines the collector instance.
 type CloudFront struct {
 	common
 }
@@ -49,7 +49,7 @@ func newCloudFront(ctx context.Context, check *circonus.Check, cfg *AWSCollector
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *CloudFront) DefaultMetrics() []Metric {
 	return []Metric{
 		{

@@ -13,13 +13,13 @@ import (
 	"unicode"
 )
 
-// Tag defines an individual tag
+// Tag defines an individual tag.
 type Tag struct {
 	Category string
 	Value    string
 }
 
-// Tags defines a list of tags
+// Tags defines a list of tags.
 type Tags []Tag
 
 // MetricNameWithStreamTags will encode tags as stream tags into supplied metric name.
@@ -89,8 +89,7 @@ func (c *Check) EncodeMetricStreamTags(tags Tags) string {
 
 // EncodeMetricTags encodes Tags into an array of strings. The format
 // check_bundle.metircs.metric.tags needs. This helper is intended to work
-// with legacy check bundle metrics. Tags directly on named metrics are being
-// deprecated in favor of stream tags.
+// with legacy check bundle metrics.
 func (c *Check) EncodeMetricTags(tags Tags) []string {
 	if len(tags) == 0 {
 		return []string{}

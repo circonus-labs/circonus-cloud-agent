@@ -3,7 +3,8 @@
 // license that can be found in the LICENSE file.
 //
 
-// +build go1.12
+//go:build go1.17
+// +build go1.17
 
 package main
 
@@ -12,7 +13,7 @@ import (
 	"github.com/circonus-labs/circonus-cloud-agent/internal/release"
 )
 
-// defined during build (e.g. goreleaser, see .goreleaser.yml)
+// defined during build (e.g. goreleaser, see .goreleaser.yml).
 var (
 	version = "dev"
 	commit  = "none"

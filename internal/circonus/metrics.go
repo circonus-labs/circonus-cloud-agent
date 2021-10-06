@@ -7,6 +7,7 @@ package circonus
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -19,7 +20,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// SubmitMetrics to Circonus check
+// SubmitMetrics to Circonus check.
 func (c *Check) SubmitMetrics(metricSrc io.Reader) error {
 	c.Lock()
 	defer c.Unlock()
@@ -84,7 +85,7 @@ func (c *Check) SubmitMetrics(metricSrc io.Reader) error {
 			fmt.Printf("\n===BEGIN(%d)\n%s\n===END\n", time.Now().UTC().UnixNano(), mbuff)
 		}
 	}
-	req, err := http.NewRequest("PUT", subURL, bytes.NewReader(mbuff))
+	req, err := http.NewRequestWithContext(context.Background(), "PUT", subURL, bytes.NewReader(mbuff))
 	// return to this one when debugging submissions is complete
 	// req, err := http.NewRequest("PUT", subURL, metricSrc)
 	if err != nil {
@@ -110,7 +111,7 @@ func (c *Check) SubmitMetrics(metricSrc io.Reader) error {
 
 	if resp.StatusCode != http.StatusOK {
 		if pr, isPipeReader := metricSrc.(*io.PipeReader); isPipeReader {
-			if err := pr.Close(); err != nil {
+			if err = pr.Close(); err != nil {
 				c.logger.Warn().Err(err).Msg("closing pipe reader")
 			}
 		}
@@ -126,7 +127,7 @@ func (c *Check) SubmitMetrics(metricSrc io.Reader) error {
 	return nil
 }
 
-// WriteMetricSample to queue for submission
+// WriteMetricSample to queue for submission.
 func (c *Check) WriteMetricSample(metricDest io.Writer, metricName, metricType string, value interface{}, timestamp *time.Time) error {
 	if metricDest == nil {
 		return errors.New("invalid metric destination (nil)")
@@ -153,11 +154,11 @@ func (c *Check) WriteMetricSample(metricDest io.Writer, metricName, metricType s
 
 	val := value
 	if metricType == "s" {
-		val = fmt.Sprintf(`"%v"`, strings.Replace(value.(string), `"`, `\"`, -1)) // NOTE: need to insert the quotes
+		val = fmt.Sprintf(`"%v"`, strings.ReplaceAll(value.(string), `"`, `\"`)) // NOTE: need to insert the quotes
 	}
 
 	// escape quotes in streamtags
-	metricName = strings.Replace(metricName, `"`, `\"`, -1)
+	metricName = strings.ReplaceAll(metricName, `"`, `\"`)
 
 	var metricSample string
 	if timestamp != nil {

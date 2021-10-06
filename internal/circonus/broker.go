@@ -9,6 +9,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"net/url"
@@ -18,7 +19,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// initializeBroker fetches broker from circonus api and sets up broker tls config
+// initializeBroker fetches broker from circonus api and sets up broker tls config.
 func (c *Check) initializeBroker() error {
 	if c.apih == nil {
 		return errors.New("invalid state (nil api client)")
@@ -42,7 +43,7 @@ func (c *Check) initializeBroker() error {
 	return nil
 }
 
-// BrokerTLSConfig returns the broker tls configuration for metric submissions or nil if tls config not needed (e.g. public trap broker)
+// BrokerTLSConfig returns the broker tls configuration for metric submissions or nil if tls config not needed (e.g. public trap broker).
 func (c *Check) BrokerTLSConfig() (*tls.Config, error) {
 	c.Lock()
 	defer c.Unlock()
@@ -66,7 +67,7 @@ func (c *Check) BrokerTLSConfig() (*tls.Config, error) {
 	return c.brokerTLS, nil
 }
 
-// brokerCN returns broker cn based on broker object
+// brokerCN returns broker cn based on broker object.
 func (c *Check) brokerCN(submissionURL string) (string, error) {
 	if c.broker == nil {
 		return "", errors.New("invalid state (nil broker)")
@@ -99,15 +100,15 @@ func (c *Check) brokerCN(submissionURL string) (string, error) {
 	return cn, nil
 }
 
-// setBrokerTLSConfig sets up the broker tls config for metric submissions
+// setBrokerTLSConfig sets up the broker tls config for metric submissions.
 func (c *Check) setBrokerTLSConfig() error {
 	cn, err := c.brokerCN(c.bundle.Config["submission_url"])
 	if err != nil {
-		return errors.New("unable to determine broker CN")
+		return fmt.Errorf("unable to determine broker CN: %w", err)
 	}
 
 	if c.config.BrokerCAFile != "" {
-		cert, err := ioutil.ReadFile(c.config.BrokerCAFile)
+		cert, err := ioutil.ReadFile(c.config.BrokerCAFile) //nolint:govet
 		if err != nil {
 			return errors.Wrap(err, "configuring broker tls")
 		}
@@ -116,6 +117,7 @@ func (c *Check) setBrokerTLSConfig() error {
 			return errors.New("unable to add Broker CA Certificate to x509 cert pool")
 		}
 		c.brokerTLS = &tls.Config{
+			MinVersion: tls.VersionTLS12,
 			RootCAs:    cp,
 			ServerName: cn,
 		}
@@ -142,6 +144,7 @@ func (c *Check) setBrokerTLSConfig() error {
 		return errors.New("unable to add Broker CA Certificate to x509 cert pool")
 	}
 	c.brokerTLS = &tls.Config{
+		MinVersion: tls.VersionTLS12,
 		RootCAs:    cp,
 		ServerName: cn,
 	}

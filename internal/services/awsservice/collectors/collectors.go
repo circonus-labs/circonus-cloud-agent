@@ -8,6 +8,8 @@ package collectors
 import (
 	"bytes"
 	"context"
+	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -15,7 +17,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
 	"github.com/circonus-labs/circonus-cloud-agent/internal/circonus"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 )
 
@@ -28,7 +29,7 @@ const (
 	resultIDFormat        = "m%ds%sq%d" //  config metric index, metric stat name, result metric counter index
 )
 
-// Collector interface for aws metric services
+// Collector interface for aws metric services.
 type Collector interface {
 	// Collect(sess *session.Session, metricDest io.Writer, baseTags circonus.Tags, interval uint, period int64) error
 	Collect(sess *session.Session, timespan MetricTimespan, baseTags circonus.Tags) error
@@ -36,7 +37,7 @@ type Collector interface {
 	DefaultMetrics() []Metric
 }
 
-// AWSCollector defines a generic aws service metric collector
+// AWSCollector defines a generic aws service metric collector.
 type AWSCollector struct {
 	// EC2 only
 	InstanceFilters *[]Filter `json:"instance_filters,omitempty" toml:"instance_filters,omitempty" yaml:"instance_filters,omitempty"`
@@ -50,7 +51,7 @@ type AWSCollector struct {
 	UseGMD          bool              `json:"use_gmd" toml:"use_gmd" yaml:"use_gmd"`          // use getMetricData instead of getMetricStatsistics
 }
 
-// AWSMetric defines an AWS metrics
+// AWSMetric defines an AWS metrics.
 type AWSMetric struct {
 	Name     string   `json:"name" toml:"name" yaml:"name"`             // REQUIRED
 	Units    string   `json:"units" toml:"units" yaml:"units"`          // REQUIRED
@@ -58,35 +59,35 @@ type AWSMetric struct {
 	Disabled bool     `json:"disabled" toml:"disabled" yaml:"disabled"` // disable collection (DEFAULT: false)
 }
 
-// CirconusMetric defines a Circonus metric
+// CirconusMetric defines a Circonus metric.
 type CirconusMetric struct {
 	Name string        `json:"name" toml:"name" yaml:"name"` // DEFAULT AWSMetric.Name
 	Type string        `json:"type" toml:"type" yaml:"type"` // REQUIRED, (gauge|counter|histogram|text) - NOTE: histogram is for HIGH volume data (as in multiple samples per second, aws does not provide this level of granularity)
 	Tags circonus.Tags `json:"tags" toml:"tags" yaml:"tags"` // DEFAULT none - additional metric specific stream tags - will automatically add "units:"+strings.ToLower(AWSMetric.Units), aws_region:current_region_being_polled, aws_instance_id:instance_id_of_metric_origin
 }
 
-// Metric maps a given metric between AWS and Circonus
+// Metric maps a given metric between AWS and Circonus.
 type Metric struct { //nolint:govet
 	AWSMetric      AWSMetric      `json:"aws" toml:"aws" yaml:"aws"`                // REQUIRED
 	CirconusMetric CirconusMetric `json:"circonus" toml:"circonus" yaml:"circonus"` // REQUIRED
 }
 
-// Filter defines a generic AWS EC2 filter https://docs.aws.amazon.com/sdk-for-go/api/service/ec2/#Filter
+// Filter defines a generic AWS EC2 filter https://docs.aws.amazon.com/sdk-for-go/api/service/ec2/#Filter.
 type Filter struct {
 	Name   *string   `json:"name" toml:"name" yaml:"name"`
 	Values []*string `json:"values" toml:"values" yaml:"values"`
 }
 
-// MetricTimespan defines the span of time for requesting metrics
+// MetricTimespan defines the span of time for requesting metrics.
 type MetricTimespan struct {
 	Start  time.Time
 	End    time.Time
 	Period int64
 }
 
-// New creates a new collector instance
+// New creates a new collector instance.
 func New(ctx context.Context, check *circonus.Check, cfgs []AWSCollector, logger zerolog.Logger) ([]Collector, error) {
-	// TODO: zone/service discovery (so that bare minimum config required would be credentials)
+	// TBD: zone/service discovery (so that bare minimum config required would be credentials)
 	//
 	// aws cloudwatch call(s) for what services are in use (if no list all active services, call each for list metrics and use ones that return >0 metrics)
 	// walk through active service list, activate ones we currently support unless explicitly disabled
@@ -242,7 +243,7 @@ func ConfigExample() ([]AWSCollector, error) {
 		case "aws/transitgateway": // VPC
 			v = &TransitGateway{}
 		default:
-			return nil, errors.Errorf("unknown aws service namespace (%s)", cn)
+			return nil, fmt.Errorf("unknown aws service namespace (%s)", cn)
 		}
 		if v != nil {
 			c.Metrics = v.DefaultMetrics()
@@ -253,19 +254,18 @@ func ConfigExample() ([]AWSCollector, error) {
 	return cc, nil
 }
 
-// nolint: structcheck
-type common struct { //nolint:govet
+type common struct {
+	disableTime  time.Time // time of runtime disabling (will try again every hour)
+	ctx          context.Context
 	check        *circonus.Check
-	dimensions   []*cloudwatch.Dimension
-	metrics      []Metric
 	id           string
 	disableCause string // cause of a runtime disabling of the collector
+	logger       zerolog.Logger
+	metrics      []Metric
 	tags         circonus.Tags
-	ctx          context.Context
-	disableTime  time.Time // time of runtime disabling (will try again every hour)
+	dimensions   []*cloudwatch.Dimension
 	useGMD       bool
 	enabled      bool
-	logger       zerolog.Logger
 }
 
 func newCommon(ctx context.Context, ns string, check *circonus.Check, cfg *AWSCollector, logger zerolog.Logger) common {
@@ -291,7 +291,7 @@ func newCommon(ctx context.Context, ns string, check *circonus.Check, cfg *AWSCo
 	}
 }
 
-// Collect is the common collection method - can be overridden by individual collectors (see ec2/elasticache)
+// Collect is the common collection method - can be overridden by individual collectors (see ec2/elasticache).
 func (c *common) Collect(sess *session.Session, timespan MetricTimespan, baseTags circonus.Tags) error {
 	if sess == nil {
 		return errors.New("invalid session (nil)")
@@ -314,7 +314,7 @@ func (c *common) Collect(sess *session.Session, timespan MetricTimespan, baseTag
 	c.logger.Debug().Str("collector", c.ID()).Msg("collecting telemetry")
 	var dims []*cloudwatch.Dimension
 	if err := collectorFn(&buf, sess, timespan, dims, baseTags); err != nil {
-		return errors.Wrap(err, "collecting telemetry")
+		return fmt.Errorf("collecting telemetry: %w", err)
 	}
 
 	if buf.Len() == 0 {
@@ -324,7 +324,7 @@ func (c *common) Collect(sess *session.Session, timespan MetricTimespan, baseTag
 
 	c.logger.Debug().Str("collector", c.ID()).Msg("submitting telemetry")
 	if err := c.check.SubmitMetrics(&buf); err != nil {
-		return errors.Wrap(err, "submitting telemetry")
+		return fmt.Errorf("submitting telemetry: %w", err)
 	}
 
 	return nil
@@ -345,7 +345,7 @@ func (c *common) Enabled() bool {
 	}
 
 	// disabled by a _potentially_ intermittent error (e.g. auth snafu)
-	if time.Since(c.disableTime) >= 1*time.Hour { // TODO: TBD allow disable retry time to be configurable
+	if time.Since(c.disableTime) >= 1*time.Hour { // TBD: allow disable retry time to be configurable
 		c.enabled = true // re-enable and try again
 		return c.enabled
 	}
@@ -354,12 +354,12 @@ func (c *common) Enabled() bool {
 	return false
 }
 
-// ID returns the colletor's string id/name (e.g. used in logging by the instance using the collector)
+// ID returns the colletor's string id/name (e.g. used in logging by the instance using the collector).
 func (c *common) ID() string {
 	return c.id
 }
 
-// done returns true if the context has been canceled
+// done returns true if the context has been canceled.
 func (c *common) done() bool {
 	select {
 	case <-c.ctx.Done():
@@ -374,11 +374,13 @@ func (c *common) done() bool {
 // or nil if there was no error passed.
 func (c *common) trackAWSErrors(err error) error {
 	if err == nil {
-		return err
+		return nil
 	}
 
-	if awsErr, ok := errors.Cause(err).(awserr.Error); ok {
-		if reqErr, ok := errors.Cause(err).(awserr.RequestFailure); ok {
+	var awsErr awserr.Error
+	if errors.As(err, &awsErr) {
+		var reqErr awserr.RequestFailure
+		if errors.As(err, &reqErr) {
 			c.logger.Error().
 				Str("aws_req_code", reqErr.Code()).
 				Str("aws_req_msg", reqErr.Message()).

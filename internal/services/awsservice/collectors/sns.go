@@ -15,7 +15,7 @@ import (
 // handle AWS/SNS specific tasks
 // https://docs.aws.amazon.com/sns/latest/dg/sns-monitoring-using-cloudwatch.html
 
-// SNS defines the collector instance
+// SNS defines the collector instance.
 type SNS struct {
 	common
 }
@@ -33,7 +33,7 @@ func newSNS(ctx context.Context, check *circonus.Check, cfg *AWSCollector, logge
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *SNS) DefaultMetrics() []Metric {
 	return []Metric{
 		{

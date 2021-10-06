@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// authorize creates the authorization token to use when making api calls
+// authorize creates the authorization token to use when making api calls.
 func (inst *Instance) authorize() (autorest.Authorizer, error) {
 	azureEnv, err := azure.EnvironmentFromName(inst.cfg.Azure.CloudName)
 	if err != nil {

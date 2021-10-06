@@ -15,18 +15,18 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// Collector interface for gcp metric services
+// Collector interface for gcp metric services.
 type Collector interface {
 	Collect(timeseriesStart, timeseriesEnd time.Time, projectID string, creds []byte, baseTags circonus.Tags) error
 	ID() string
 }
 
-// GCPCollector defines a generic gcp service metric collector
+// GCPCollector defines a generic gcp service metric collector.
 type GCPCollector struct {
-	Name     string        `json:"name" toml:"name" yaml:"name"`             // e.g. compute
-	Disabled bool          `json:"disabled" toml:"disabled" yaml:"disabled"` // disable metric collection for this gcp service
 	Filter   Filter        `json:"filter" toml:"filter" yaml:"filter"`       // filter
+	Name     string        `json:"name" toml:"name" yaml:"name"`             // e.g. compute
 	Tags     circonus.Tags `json:"tags" toml:"tags" yaml:"tags"`             // service tags
+	Disabled bool          `json:"disabled" toml:"disabled" yaml:"disabled"` // disable metric collection for this gcp service
 }
 
 // Filter defines any filtering criteria used for resources and metrics. Use labels, an expression, or neither.
@@ -35,7 +35,7 @@ type Filter struct {
 	Expression string            `json:"expression" toml:"expression" yaml:"expression"` // filter with a custom expression
 }
 
-// New creates a new collector instance
+// New creates a new collector instance.
 func New(ctx context.Context, check *circonus.Check, cfgs []GCPCollector, interval time.Duration, logger zerolog.Logger) ([]Collector, error) {
 	cl := collectorList()
 	cc := []Collector{}
@@ -92,7 +92,7 @@ func collectorList() collectorInitList {
 	}
 }
 
-// ConfigExample generates configuration examples for collectors
+// ConfigExample generates configuration examples for collectors.
 func ConfigExample() ([]GCPCollector, error) {
 	var cc []GCPCollector
 	cl := collectorList()
@@ -114,18 +114,18 @@ func ConfigExample() ([]GCPCollector, error) {
 }
 
 type common struct {
-	id           string
-	check        *circonus.Check
-	enabled      bool
-	disableCause string        // cause of a runtime disabling of the collector
-	disableTime  *time.Time    // time of runtime disabling (will try again every hour)
-	interval     time.Duration // collection polling interval
-	tsStart      time.Time     // timeseries interval start
-	tsEnd        time.Time     // timeseries interval end
-	filter       Filter
+	tsStart      time.Time // timeseries interval start
+	tsEnd        time.Time // timeseries interval end
 	ctx          context.Context
-	tags         circonus.Tags
+	disableTime  *time.Time // time of runtime disabling (will try again every hour)
+	check        *circonus.Check
+	filter       Filter
+	id           string
+	disableCause string // cause of a runtime disabling of the collector
 	logger       zerolog.Logger
+	tags         circonus.Tags
+	interval     time.Duration // collection polling interval
+	enabled      bool
 }
 
 func newCommon(ctx context.Context, check *circonus.Check, cfg *GCPCollector, interval time.Duration, logger zerolog.Logger) common {

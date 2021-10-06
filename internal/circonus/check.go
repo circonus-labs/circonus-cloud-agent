@@ -18,7 +18,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// initializeCheckBundle finds or creates a new check bundle
+// initializeCheckBundle finds or creates a new check bundle.
 func (c *Check) initializeCheckBundle() error {
 	if c.apih == nil {
 		return errors.New("invalid state (nil api client)")
@@ -50,7 +50,7 @@ func (c *Check) initializeCheckBundle() error {
 	return nil
 }
 
-// findOrCreateCheckBundle searches for a check bundle based on target and display name
+// findOrCreateCheckBundle searches for a check bundle based on target and display name.
 func (c *Check) findOrCreateCheckBundle() (*apiclient.CheckBundle, error) {
 	searchCriteria := apiclient.SearchQueryType(fmt.Sprintf(`(active:1)(type:"%s")(host:%s)`, c.checkType, c.config.ID))
 
@@ -83,7 +83,7 @@ func (c *Check) findOrCreateCheckBundle() (*apiclient.CheckBundle, error) {
 	return &bundle, nil
 }
 
-// createCheckBundle creates a new check bundle
+// createCheckBundle creates a new check bundle.
 func (c *Check) createCheckBundle() (*apiclient.CheckBundle, error) {
 	secret, err := makeSecret()
 	if err != nil {

@@ -15,7 +15,7 @@ import (
 // handle AWS/SQS specific tasks
 // https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-available-cloudwatch-metrics.html
 
-// SQS defines the collector instance
+// SQS defines the collector instance.
 type SQS struct {
 	common
 }
@@ -33,7 +33,7 @@ func newSQS(ctx context.Context, check *circonus.Check, cfg *AWSCollector, logge
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *SQS) DefaultMetrics() []Metric {
 	return []Metric{
 		{

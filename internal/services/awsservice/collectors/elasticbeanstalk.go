@@ -15,7 +15,7 @@ import (
 // handle AWS/ElasticBeanstalk specific tasks
 // https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/health-enhanced-cloudwatch.html#health-enhanced-cloudwatch-metrics
 
-// ElasticBeanstalk defines the collector instance
+// ElasticBeanstalk defines the collector instance.
 type ElasticBeanstalk struct {
 	common
 }
@@ -33,7 +33,7 @@ func newElasticBeanstalk(ctx context.Context, check *circonus.Check, cfg *AWSCol
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *ElasticBeanstalk) DefaultMetrics() []Metric {
 	return []Metric{
 		// only one metric is produced by default "EnvironmentHealth", the others

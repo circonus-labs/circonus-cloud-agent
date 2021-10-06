@@ -17,7 +17,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-// Instance defines a specific gcp service instance for collecting metrics
+// Instance defines a specific gcp service instance for collecting metrics.
 type Instance struct {
 	cfg        *Config
 	ctx        context.Context
@@ -30,7 +30,7 @@ type Instance struct {
 	sync.Mutex
 }
 
-// Start runs the instance based on the configured interval
+// Start runs the instance based on the configured interval.
 func (inst *Instance) Start() error {
 	interval := time.Duration(inst.cfg.GCP.Interval) * time.Minute
 
@@ -93,7 +93,7 @@ func (inst *Instance) Start() error {
 	}
 }
 
-// done is a utility routine to check the context, returns true if done
+// done is a utility routine to check the context, returns true if done.
 func (inst *Instance) done() bool {
 	select {
 	case <-inst.ctx.Done():

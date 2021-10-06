@@ -15,7 +15,7 @@ import (
 // handle AWS/ELB specific tasks
 // https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/elb-cloudwatch-metrics.html
 
-// ELB defines the collector instance
+// ELB defines the collector instance.
 type ELB struct {
 	common
 }
@@ -33,7 +33,7 @@ func newELB(ctx context.Context, check *circonus.Check, cfg *AWSCollector, logge
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *ELB) DefaultMetrics() []Metric {
 	return []Metric{
 		{

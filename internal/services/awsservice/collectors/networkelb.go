@@ -15,7 +15,7 @@ import (
 // handle AWS/NetworkELB specific tasks
 // https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-cloudwatch-metrics.html
 
-// NetworkELB defines the collector instance
+// NetworkELB defines the collector instance.
 type NetworkELB struct {
 	common
 }
@@ -33,7 +33,7 @@ func newNetworkELB(ctx context.Context, check *circonus.Check, cfg *AWSCollector
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *NetworkELB) DefaultMetrics() []Metric {
 	return []Metric{
 		{

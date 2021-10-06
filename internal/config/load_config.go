@@ -36,7 +36,7 @@ func LoadConfigFile(base string, target interface{}) error {
 	// indicated one
 	for _, ext := range extensions {
 		if strings.HasSuffix(base, ext) {
-			base = strings.Replace(base, ext, "", -1)
+			base = strings.ReplaceAll(base, ext, "")
 			limitExt = ext
 			break
 		}

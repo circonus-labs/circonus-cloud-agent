@@ -15,7 +15,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// resourceMeta contains details on a resource for handling the metrics available
+// resourceMeta contains details on a resource for handling the metrics available.
 type resourceMeta struct {
 	ID   string
 	Name string
@@ -24,7 +24,7 @@ type resourceMeta struct {
 	Tags circonus.Tags
 }
 
-// getResources retrieves a list of resources in a subscription based on the user supplied filter
+// getResources retrieves a list of resources in a subscription based on the user supplied filter.
 func (inst *Instance) getResources(auth autorest.Authorizer) ([]resourceMeta, error) {
 	resourceClient := resources.NewClient(inst.cfg.Azure.SubscriptionID)
 	resourceClient.Authorizer = auth

@@ -15,7 +15,7 @@ import (
 // handle AWS/EC2Spot specific tasks
 // https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-fleet-cloudwatch-metrics.html
 
-// EC2Spot defines the collector instance
+// EC2Spot defines the collector instance.
 type EC2Spot struct {
 	common
 }
@@ -33,7 +33,7 @@ func newEC2Spot(ctx context.Context, check *circonus.Check, cfg *AWSCollector, l
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *EC2Spot) DefaultMetrics() []Metric {
 	return []Metric{
 		{

@@ -21,7 +21,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// Agent holds the main circonus-agent process
+// Agent holds the main circonus-agent process.
 type Agent struct {
 	group       *errgroup.Group
 	groupCtx    context.Context
@@ -30,7 +30,7 @@ type Agent struct {
 	signalCh    chan os.Signal
 }
 
-// New returns a new agent instance
+// New returns a new agent instance.
 func New() (*Agent, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	g, gctx := errgroup.WithContext(ctx)
@@ -88,7 +88,7 @@ func New() (*Agent, error) {
 	return &a, nil
 }
 
-// Start the agent
+// Start the agent.
 func (a *Agent) Start() error {
 	a.group.Go(a.handleSignals)
 	for svcID := range a.services {
@@ -103,7 +103,7 @@ func (a *Agent) Start() error {
 	return a.group.Wait()
 }
 
-// Stop cleans up and shuts down the Agent
+// Stop cleans up and shuts down the Agent.
 func (a *Agent) Stop() {
 	a.stopSignalHandler()
 	a.groupCancel()
@@ -114,7 +114,7 @@ func (a *Agent) Stop() {
 		Str("ver", release.VERSION).Msg("stopped")
 }
 
-// stopSignalHandler disables the signal handler
+// stopSignalHandler disables the signal handler.
 func (a *Agent) stopSignalHandler() {
 	signal.Stop(a.signalCh)
 	signal.Reset() // so a second ctrl-c will force immediate stop

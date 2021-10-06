@@ -10,7 +10,7 @@ import (
 	"io"
 	"time"
 
-	monitoring "cloud.google.com/go/monitoring/apiv3"
+	monitoring "cloud.google.com/go/monitoring/apiv3/v2"
 	"github.com/circonus-labs/circonus-cloud-agent/internal/circonus"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/pkg/errors"
@@ -20,7 +20,7 @@ import (
 	monitoringpb "google.golang.org/genproto/googleapis/monitoring/v3"
 )
 
-// processMetrics retrieves the available metrics for a resource identified by the supplied filter
+// processMetrics retrieves the available metrics for a resource identified by the supplied filter.
 func (c *common) processMetrics(projectID, filter string, creds []byte, metricDest io.Writer, baseTags circonus.Tags) error {
 	client, err := monitoring.NewMetricClient(c.ctx, option.WithCredentialsJSON(creds))
 	if err != nil {
@@ -33,12 +33,12 @@ func (c *common) processMetrics(projectID, filter string, creds []byte, metricDe
 		Filter:   filter,
 	}
 
-	//c.logger.Debug().Str("filter", filter).Msg("getting metric descriptors")
+	// c.logger.Debug().Str("filter", filter).Msg("getting metric descriptors")
 	metricDescriptors := make([]*metric.MetricDescriptor, 0)
 	iter := client.ListMetricDescriptors(c.ctx, req)
 	for {
 		metricDescriptor, err := iter.Next()
-		if err == iterator.Done {
+		if errors.Is(err, iterator.Done) {
 			break
 		}
 		if err != nil {
@@ -73,7 +73,7 @@ func (c *common) processMetrics(projectID, filter string, creds []byte, metricDe
 	return nil
 }
 
-// fetchTimeseries retrieves the actual samples for the metric defined by the filter
+// fetchTimeseries retrieves the actual samples for the metric defined by the filter.
 func (c *common) fetchTimeseries(client *monitoring.MetricClient, projectID, filter string, creds []byte, metricName string, metricDest io.Writer, baseTags circonus.Tags) {
 	_ = creds // ref to keep signatures same and squelch lint unused warning
 
@@ -96,7 +96,7 @@ func (c *common) fetchTimeseries(client *monitoring.MetricClient, projectID, fil
 	it := client.ListTimeSeries(c.ctx, req)
 	for {
 		timeSeries, err := it.Next()
-		if err == iterator.Done {
+		if errors.Is(err, iterator.Done) {
 			break
 		}
 		if err != nil {

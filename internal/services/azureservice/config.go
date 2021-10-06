@@ -17,7 +17,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// Config for instance of Azure metric collection service
+// Config for instance of Azure metric collection service.
 type Config struct {
 	ID       string                 `json:"id" toml:"id" yaml:"id"`                   // unique id for this service client instance, no spaces (ties several things together, short and immutable - logging, check search/create, tags, etc.)
 	Azure    AzureConfig            `json:"azure" toml:"azure" yaml:"azure"`          // REQUIRED, azure configuration
@@ -25,7 +25,7 @@ type Config struct {
 	Tags     circonus.Tags          `json:"tags" toml:"tags" yaml:"tags"`             // global tags, added to all metrics
 }
 
-// AzureConfig defines the Azure sdk credentials
+// AzureConfig defines the Azure sdk credentials.
 type AzureConfig struct {
 	DirectoryID       string `json:"directory_id" toml:"directory_id" yaml:"directory_id"`                   // aka tenant id
 	ApplicationID     string `json:"application_id" toml:"application_id" yaml:"application_id"`             // aka client id

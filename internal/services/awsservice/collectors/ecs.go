@@ -15,7 +15,7 @@ import (
 // handle AWS/ECS specific tasks
 // https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cloudwatch-metrics.html#available_cloudwatch_metrics
 
-// ECS defines the collector instance
+// ECS defines the collector instance.
 type ECS struct {
 	common
 }
@@ -33,7 +33,7 @@ func newECS(ctx context.Context, check *circonus.Check, cfg *AWSCollector, logge
 	return c, nil
 }
 
-// DefaultMetrics returns a default metric configuration
+// DefaultMetrics returns a default metric configuration.
 func (c *ECS) DefaultMetrics() []Metric {
 	return []Metric{
 		{
