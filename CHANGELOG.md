@@ -1,5 +1,7 @@
 # v0.3.1
 
+* fix: lint issues
+* add: lint config
 * add: lint workflow
 * upd: remove log-level info msg
 * bring select dependencies up-to-date
