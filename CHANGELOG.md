@@ -1,3 +1,23 @@
+# v0.3.1
+
+* upd: remove log-level info msg
+* bring select dependencies up-to-date
+  * cloud.google.com/go/monitoring v1.0.0
+  * github.com/alecthomas/units v0.0.0-20210927113745-59d0afb8317a
+  * github.com/circonus-labs/go-apiclient v0.7.15
+  * github.com/golang/protobuf v1.5.2
+  * github.com/pelletier/go-toml v1.9.4
+  * github.com/pkg/errors v0.9.1
+  * github.com/rs/zerolog v1.25.0
+  * github.com/spf13/cobra v1.2.1
+  * github.com/spf13/viper v1.9.0
+  * golang.org/x/oauth2 v0.0.0-20210819190943-2bc19b11175f
+  * golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+  * golang.org/x/sys v0.0.0-20210908233432-aa78b53d3365
+  * google.golang.org/api v0.57.0
+  * google.golang.org/genproto v0.0.0-20210921142501-181ce0d877f6
+  * gopkg.in/yaml.v2 v2.4.0
+
 # v0.3.0
 
 * add: custom collector to walk through ec2 list of ebs volumes and collect from each one individually
