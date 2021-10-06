@@ -1,5 +1,6 @@
 # v0.3.1
 
+* add: lint workflow
 * upd: remove log-level info msg
 * bring select dependencies up-to-date
   * cloud.google.com/go/monitoring v1.0.0
