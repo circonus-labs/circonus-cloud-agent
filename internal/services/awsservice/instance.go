@@ -250,23 +250,24 @@ func (inst *Instance) done() bool {
 
 // createSession returns a new aws session using configured aws information.
 func (inst *Instance) createSession(region string) (*session.Session, error) {
-	var creds *credentials.Credentials
+	var cfg *aws.Config
 
 	switch {
 	case inst.cfg.AWS.Role != "":
-		creds = credentials.NewSharedCredentials(
+		creds := credentials.NewSharedCredentials(
 			inst.cfg.AWS.CredentialsFile,
 			inst.cfg.AWS.Role)
+		cfg = &aws.Config{Credentials: creds}
 	case inst.cfg.AWS.AccessKeyID != "":
-		creds = credentials.NewStaticCredentials(
+		creds := credentials.NewStaticCredentials(
 			inst.cfg.AWS.AccessKeyID,
 			inst.cfg.AWS.SecretAccessKey,
 			"")
+		cfg = &aws.Config{Credentials: creds}
 	default:
-		return nil, errors.New("invalid AWS credentils configuration")
+		cfg = &aws.Config{}
 	}
 
-	cfg := &aws.Config{Credentials: creds}
 	if region != "" && region != "global" {
 		cfg.Region = aws.String(region)
 	}
