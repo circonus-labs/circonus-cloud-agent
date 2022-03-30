@@ -1,6 +1,10 @@
+# v0.3.2
+
+* upd: enable using IAM role attached to an ec2 instance rather than explicit credential file or keys
+
 # v0.3.1
 
-* fix: lint issues
+* fix: lint issues 
 * add: lint config
 * add: lint workflow
 * upd: remove log-level info msg
