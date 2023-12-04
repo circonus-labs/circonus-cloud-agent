@@ -8,7 +8,6 @@ package azureservice
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -131,7 +130,7 @@ func (svc *AzureService) initInstances(confDir string) error {
 		return errors.New("invalid config dir (empty)")
 	}
 
-	entries, err := ioutil.ReadDir(confDir)
+	entries, err := os.ReadDir(confDir)
 	if err != nil {
 		return errors.Wrap(err, "reading AWS config dir")
 	}

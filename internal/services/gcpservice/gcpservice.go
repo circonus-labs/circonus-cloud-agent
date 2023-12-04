@@ -10,7 +10,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -141,7 +140,7 @@ func (svc *GCPService) initInstances(confDir string) error {
 		return errors.New("invalid config dir (empty)")
 	}
 
-	entries, err := ioutil.ReadDir(confDir)
+	entries, err := os.ReadDir(confDir)
 	if err != nil {
 		return errors.Wrap(err, "reading GCP config dir")
 	}
@@ -203,7 +202,7 @@ func (svc *GCPService) instanceFromConfig(cfgFile string) (*Instance, error) {
 	}
 	instance.cfg.GCP.CredentialsFile = cfgFile
 
-	data, err := ioutil.ReadFile(instance.cfg.GCP.CredentialsFile)
+	data, err := os.ReadFile(instance.cfg.GCP.CredentialsFile)
 	if err != nil {
 		return nil, errors.Wrap(err, "loading GCP credentials file")
 	}

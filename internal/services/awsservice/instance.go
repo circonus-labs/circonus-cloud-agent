@@ -8,7 +8,7 @@ package awsservice
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -51,7 +51,7 @@ func (svc *AWSService) initInstances(confDir string) error {
 		return errors.New("invalid config dir (empty)")
 	}
 
-	entries, err := ioutil.ReadDir(confDir)
+	entries, err := os.ReadDir(confDir)
 	if err != nil {
 		return errors.Wrap(err, "reading AWS config dir")
 	}

@@ -8,7 +8,7 @@ package circonus
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
+	"os"
 	"regexp"
 	"strings"
 	"sync"
@@ -28,7 +28,7 @@ type ServiceConfig struct {
 	Key          string `json:"key" toml:"key" yaml:"key"`                               // REQUIRED
 	URL          string `json:"url" toml:"url" yaml:"url"`                               // DEFAULT 'https://api.circonus.com/v2/'
 	CAFile       string `json:"ca_file" toml:"ca_file" yaml:"ca_file"`                   // DEFAULT api.circonus.com uses a public certificate
-	Debug        bool   `json:"debug" toml:"debug" yaml:"debug"`                         // DEFAULT false - this is separate so that the global debug does not innundate logs with cgm debug messages from each cloud service metric collection client
+	Debug        bool   `json:"debug" toml:"debug" yaml:"debug"`                         // DEFAULT false - this is separate so that the global debug does not inundate logs with cgm debug messages from each cloud service metric collection client
 	TraceMetrics bool   `json:"trace_metrics" toml:"trace_metrics" yaml:"trace_metrics"` // DEFAULT false - output each metric as it is sent
 }
 
@@ -51,16 +51,16 @@ type Config struct {
 
 // Check defines a Circonus check for a circonus-cloud-agent service.
 type Check struct {
-	sync.Mutex
 	apih            *apiclient.API
 	config          *Config
 	broker          *apiclient.Broker
 	brokerTLS       *tls.Config
 	bundle          *apiclient.CheckBundle
-	metricTypeRx    *regexp.Regexp // validate metric types
+	metricTypeRx    *regexp.Regexp
 	errorMetricName string
 	checkType       string
 	logger          zerolog.Logger
+	sync.Mutex
 }
 
 // logshim is used to satisfy apiclient Logger interface (avoiding ptr receiver issue).
@@ -201,7 +201,7 @@ func (c *Check) initAPI() error {
 		Log:      logshim{logh: c.logger.With().Str("pkg", "apicli").Logger()},
 	}
 	if c.config.APICAFile != "" {
-		cert, err := ioutil.ReadFile(c.config.APICAFile)
+		cert, err := os.ReadFile(c.config.APICAFile)
 		if err != nil {
 			return errors.Wrap(err, "configuring API client")
 		}

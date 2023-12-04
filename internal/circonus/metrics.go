@@ -10,7 +10,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"strings"
@@ -75,7 +74,7 @@ func (c *Check) SubmitMetrics(metricSrc io.Reader) error {
 	}
 
 	// for debugging only
-	mbuff, err := ioutil.ReadAll(metricSrc)
+	mbuff, err := io.ReadAll(metricSrc)
 	if err != nil {
 		return err
 	}
@@ -102,7 +101,7 @@ func (c *Check) SubmitMetrics(metricSrc io.Reader) error {
 		return err
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	resp.Body.Close() // nolint: errcheck
 	if err != nil {
 		client.CloseIdleConnections()
@@ -120,7 +119,7 @@ func (c *Check) SubmitMetrics(metricSrc io.Reader) error {
 		return errors.Wrap(err, "submitting metrics")
 	}
 
-	c.logger.Debug().Str("cid", c.bundle.CID).RawJSON("result", body).Msg("telmetry stats submitted")
+	c.logger.Debug().Str("cid", c.bundle.CID).RawJSON("result", body).Msg("telemetry stats submitted")
 
 	client.CloseIdleConnections()
 

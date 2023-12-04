@@ -10,9 +10,9 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/url"
+	"os"
 	"strings"
 
 	apiclient "github.com/circonus-labs/go-apiclient"
@@ -108,7 +108,7 @@ func (c *Check) setBrokerTLSConfig() error {
 	}
 
 	if c.config.BrokerCAFile != "" {
-		cert, err := ioutil.ReadFile(c.config.BrokerCAFile) //nolint:govet
+		cert, err := os.ReadFile(c.config.BrokerCAFile) //nolint:govet
 		if err != nil {
 			return errors.Wrap(err, "configuring broker tls")
 		}
