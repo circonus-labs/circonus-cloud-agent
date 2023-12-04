@@ -11,7 +11,7 @@ require (
 	github.com/Azure/go-autorest/autorest/validation v0.2.0 // indirect
 	github.com/alecthomas/units v0.0.0-20210927113745-59d0afb8317a
 	github.com/aws/aws-sdk-go v1.23.17
-	github.com/circonus-labs/go-apiclient v0.7.15
+	github.com/circonus-labs/go-apiclient v0.7.23
 	github.com/golang/protobuf v1.5.3
 	github.com/pelletier/go-toml v1.9.4
 	github.com/pkg/errors v0.9.1
