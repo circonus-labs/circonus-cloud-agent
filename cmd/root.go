@@ -30,7 +30,7 @@ var RootCmd = &cobra.Command{
 	Use:   "circonus-cloud-agent",
 	Short: "Agent to collect metrics from cloud infrastructures",
 	Long: `The Circonus Cloud Agent collects metrics from cloud infrastructures
-and fowards them to Circonus.`,
+and forwards them to Circonus.`,
 	PersistentPreRunE: initApp,
 	Run: func(cmd *cobra.Command, args []string) {
 		//
@@ -164,7 +164,7 @@ func initConfig() {
 }
 
 // initApp initializes the application components.
-func initApp(cmd *cobra.Command, args []string) error {
+func initApp(_ *cobra.Command, _ []string) error {
 	if err := initLogging(); err != nil {
 		return err
 	}
