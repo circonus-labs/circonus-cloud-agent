@@ -79,6 +79,8 @@ func (c *EC2) Collect(sess *session.Session, timespan MetricTimespan, baseTags c
 	buf.Grow(32768)
 	metricDimensionName := "InstanceId"
 	for _, instanceInfo := range ec2instances {
+		instanceInfo := instanceInfo
+
 		dims := []*cloudwatch.Dimension{
 			{
 				Name:  &metricDimensionName,
@@ -172,60 +174,60 @@ func (c *EC2) ec2Instances(sess client.ConfigProvider, baseTags circonus.Tags) (
 func (c *EC2) DefaultMetrics() []Metric {
 	return []Metric{
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "CPUUtilization",
 				Stats: []string{metricStatAverage},
 				Units: "Percent",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "DiskReadOps",
 				Stats: []string{metricStatAverage},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "DiskWriteOps",
 				Stats: []string{metricStatAverage},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "DiskReadBytes",
 				Stats: []string{metricStatAverage},
 				Units: "Bytes",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "DiskWriteBytes",
 				Stats: []string{metricStatAverage},
 				Units: "Bytes",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
@@ -233,96 +235,96 @@ func (c *EC2) DefaultMetrics() []Metric {
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "NetworkIn",
 				Stats: []string{metricStatAverage},
 				Units: "Bytes",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "NetworkOut",
 				Stats: []string{metricStatAverage},
 				Units: "Bytes",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "NetworkPacketsIn",
 				Stats: []string{metricStatAverage},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "NetworkPacketsOut",
 				Stats: []string{metricStatAverage},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "EBSReadOps",
 				Stats: []string{metricStatAverage},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "EBSWriteOps",
 				Stats: []string{metricStatAverage},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "EBSReadBytes",
 				Stats: []string{metricStatAverage},
 				Units: "Bytes",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "EBSWriteBytes",
 				Stats: []string{metricStatAverage},
 				Units: "Bytes",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically

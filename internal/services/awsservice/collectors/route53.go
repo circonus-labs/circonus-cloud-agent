@@ -39,72 +39,72 @@ func newRoute53(ctx context.Context, check *circonus.Check, cfg *AWSCollector, l
 func (c *Route53) DefaultMetrics() []Metric {
 	return []Metric{
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "ChildHealthCheckHealthyCount",
 				Stats: []string{metricStatAverage},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "ConnectionTime",
 				Stats: []string{metricStatAverage},
 				Units: "Milliseconds",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "HealthCheckPercentageHealthy",
 				Stats: []string{metricStatAverage},
 				Units: "Percent",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "HealthCheckStatus",
 				Stats: []string{metricStatMinimum},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "SSLHandshakeTime",
 				Stats: []string{metricStatAverage},
 				Units: "Milliseconds",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "TimeToFirstByte",
 				Stats: []string{metricStatAverage},
 				Units: "Milliseconds",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically

@@ -37,24 +37,24 @@ func newRoute53Resolver(ctx context.Context, check *circonus.Check, cfg *AWSColl
 func (c *Route53Resolver) DefaultMetrics() []Metric {
 	return []Metric{
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "InboundQueryVolume",
 				Stats: []string{metricStatSum},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "OutboundQueryVolume",
 				Stats: []string{metricStatSum},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically

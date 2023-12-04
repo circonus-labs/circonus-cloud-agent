@@ -19,15 +19,15 @@ import (
 
 // Instance defines a specific gcp service instance for collecting metrics.
 type Instance struct {
-	cfg        *Config
 	ctx        context.Context
-	logger     zerolog.Logger
+	cfg        *Config
 	check      *circonus.Check
-	collectors []collectors.Collector
 	lastStart  *time.Time
+	collectors []collectors.Collector
 	baseTags   circonus.Tags
-	running    bool
+	logger     zerolog.Logger
 	sync.Mutex
+	running bool
 }
 
 // Start runs the instance based on the configured interval.

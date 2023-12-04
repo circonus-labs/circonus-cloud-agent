@@ -53,72 +53,72 @@ func newCloudFront(ctx context.Context, check *circonus.Check, cfg *AWSCollector
 func (c *CloudFront) DefaultMetrics() []Metric {
 	return []Metric{
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "Requests",
 				Stats: []string{metricStatSum},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "BytesDownloaded",
 				Stats: []string{metricStatSum},
 				Units: "Bytes",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "BytesUploaded",
 				Stats: []string{metricStatSum},
 				Units: "Bytes",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "TotalErrorRate",
 				Stats: []string{metricStatAverage},
 				Units: "Percent",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "4xxErrorRate",
 				Stats: []string{metricStatAverage},
 				Units: "Percent",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "5xxErrorRate",
 				Stats: []string{metricStatAverage},
 				Units: "Percent",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically

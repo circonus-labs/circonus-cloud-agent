@@ -37,60 +37,60 @@ func newELB(ctx context.Context, check *circonus.Check, cfg *AWSCollector, logge
 func (c *ELB) DefaultMetrics() []Metric {
 	return []Metric{
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "BackendConnectionErrors",
 				Stats: []string{metricStatSum},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "HealthyHostCount",
 				Stats: []string{metricStatAverage, metricStatMaximum},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "HTTPCode_Backend_2XX",
 				Stats: []string{metricStatSum},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "HTTPCode_Backend_3XX",
 				Stats: []string{metricStatSum},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "HTTPCode_Backend_4XX",
 				Stats: []string{metricStatSum},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
@@ -98,108 +98,108 @@ func (c *ELB) DefaultMetrics() []Metric {
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "HTTPCode_Backend_5XX",
 				Stats: []string{metricStatSum},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "HTTPCode_ELB_4XX",
 				Stats: []string{metricStatSum},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "HTTPCode_ELB_5XX",
 				Stats: []string{metricStatSum},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "Latency",
 				Stats: []string{metricStatAverage, metricStatMaximum},
 				Units: "Seconds",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "EBSReadOps",
 				Stats: []string{metricStatAverage},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "RequestCount",
 				Stats: []string{metricStatSum},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "SpilloverCount",
 				Stats: []string{metricStatSum},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "SurgeQueueLength",
 				Stats: []string{metricStatMaximum},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "UnHealthyHostCount",
 				Stats: []string{metricStatAverage, metricStatMinimum},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically

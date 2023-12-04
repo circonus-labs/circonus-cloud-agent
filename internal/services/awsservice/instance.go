@@ -30,18 +30,18 @@ import (
 // Note: a Instance has a 1:1 relation with aws:circ - each Instance has (or, may have)
 // a different set of aws and/or circonus credentials.
 type Instance struct {
+	ctx        context.Context
 	cfg        *Config
 	regionCfg  *AWSRegion
-	ctx        context.Context
-	interval   uint
-	logger     zerolog.Logger
 	check      *circonus.Check
-	period     int64
 	lastStart  *time.Time
 	collectors []collectors.Collector
 	baseTags   circonus.Tags
-	running    bool
+	logger     zerolog.Logger
+	interval   uint
+	period     int64
 	sync.Mutex
+	running bool
 }
 
 // initInstances creates a new set of region Instances for each configuration
@@ -88,7 +88,7 @@ func (svc *AWSService) initInstances(confDir string) error {
 		if cfg.Period == "detailed" {
 			period = 60
 		}
-		// used to control how many samples we request - calclulating start from
+		// used to control how many samples we request - calculating start from
 		// time.Now (e.g. time.Now().Add(- (interval * time.Second))). desired
 		// number of samples is three. if exactly three * period is used,
 		// cloudwatch sdk will often respond with only the last two samples.
@@ -195,7 +195,7 @@ func (inst *Instance) Start() error {
 				continue
 			}
 
-			// calculate one timeseries range for all requests from collectors
+			// calculate one time series range for all requests from collectors
 			start := time.Now()
 			delta := 10 * time.Minute // get last 10 minutes of samples
 			if inst.lastStart != nil {
@@ -203,7 +203,7 @@ func (inst *Instance) Start() error {
 			}
 			tsEnd := start
 			tsStart := tsEnd.Add(-delta)
-			inst.logger.Info().Time("start", tsStart).Time("end", tsEnd).Str("delta", delta.String()).Msg("collection timeseries range")
+			inst.logger.Info().Time("start", tsStart).Time("end", tsEnd).Str("delta", delta.String()).Msg("collection time series range")
 
 			inst.lastStart = &start
 			inst.running = true

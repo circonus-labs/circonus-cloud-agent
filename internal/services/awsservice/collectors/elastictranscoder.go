@@ -50,96 +50,96 @@ func (c *ElasticTranscoder) DefaultMetrics() []Metric {
 	if !havePipelineID && !haveOperation {
 		return []Metric{
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "BilledHDOutput",
 					Stats: []string{metricStatAverage},
 					Units: "Seconds",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 				},
 			},
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "BilledSDOutput",
 					Stats: []string{metricStatAverage},
 					Units: "Seconds",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 				},
 			},
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "BilledAudioOutput",
 					Stats: []string{metricStatAverage},
 					Units: "Seconds",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 				},
 			},
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "JobsErrored",
 					Stats: []string{metricStatAverage, metricStatSum},
 					Units: "Count",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 				},
 			},
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "OutputsPerJob",
 					Stats: []string{metricStatAverage},
 					Units: "Count",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 				},
 			},
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "StandbyTime",
 					Stats: []string{metricStatAverage},
 					Units: "Count",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 				},
 			},
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "Errors",
 					Stats: []string{metricStatAverage, metricStatSum},
 					Units: "Count",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 				},
 			},
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "Throttles",
 					Stats: []string{metricStatAverage, metricStatSum},
 					Units: "Count",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
@@ -151,84 +151,84 @@ func (c *ElasticTranscoder) DefaultMetrics() []Metric {
 	if havePipelineID && !haveOperation {
 		return []Metric{
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "BilledHDOutput",
 					Stats: []string{metricStatAverage},
 					Units: "Seconds",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 				},
 			},
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "BilledSDOutput",
 					Stats: []string{metricStatAverage},
 					Units: "Seconds",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 				},
 			},
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "BilledAudioOutput",
 					Stats: []string{metricStatAverage},
 					Units: "Seconds",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 				},
 			},
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "JobsCompleted",
 					Stats: []string{metricStatAverage, metricStatSum},
 					Units: "Count",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 				},
 			},
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "JobsErrored",
 					Stats: []string{metricStatAverage, metricStatSum},
 					Units: "Count",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 				},
 			},
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "OutputsPerJob",
 					Stats: []string{metricStatAverage},
 					Units: "Count",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 				},
 			},
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "StandbyTime",
 					Stats: []string{metricStatAverage},
 					Units: "Count",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
@@ -240,24 +240,24 @@ func (c *ElasticTranscoder) DefaultMetrics() []Metric {
 	if !havePipelineID && haveOperation {
 		return []Metric{
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "Errors",
 					Stats: []string{metricStatAverage, metricStatSum},
 					Units: "Count",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 				},
 			},
 			{
-				AWSMetric{
+				AWSMetric: AWSMetric{
 					Name:  "Throttles",
 					Stats: []string{metricStatAverage, metricStatSum},
 					Units: "Count",
 				},
-				CirconusMetric{
+				CirconusMetric: CirconusMetric{
 					Name: "",              // NOTE: AWSMetric.Name will be used if blank
 					Type: "gauge",         // (gauge|counter|histogram|text)
 					Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically

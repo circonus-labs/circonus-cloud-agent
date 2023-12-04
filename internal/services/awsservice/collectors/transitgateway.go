@@ -37,65 +37,65 @@ func newTransitGateway(ctx context.Context, check *circonus.Check, cfg *AWSColle
 func (c *TransitGateway) DefaultMetrics() []Metric {
 	return []Metric{
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Disabled: false,
 				Name:     "BytesIn",
 				Stats:    []string{metricStatAverage, metricStatSum, metricStatSampleCount},
 				Units:    "Bytes",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Disabled: false,
 				Name:     "BytesOut",
 				Stats:    []string{metricStatAverage, metricStatSum, metricStatSampleCount},
 				Units:    "Bytes",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Disabled: false,
 				Name:     "PacketsIn",
 				Stats:    []string{metricStatAverage, metricStatSum, metricStatSampleCount},
 				Units:    "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Disabled: false,
 				Name:     "PacketsOut",
 				Stats:    []string{metricStatAverage, metricStatSum, metricStatSampleCount},
 				Units:    "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Disabled: false,
 				Name:     "PacketDropCountBlackhole",
 				Stats:    []string{metricStatAverage, metricStatSum, metricStatSampleCount},
 				Units:    "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
@@ -103,13 +103,13 @@ func (c *TransitGateway) DefaultMetrics() []Metric {
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Disabled: false,
 				Name:     "PacketDropCountNoRoute",
 				Stats:    []string{metricStatAverage, metricStatSum, metricStatSampleCount},
 				Units:    "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically

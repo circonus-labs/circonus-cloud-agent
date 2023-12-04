@@ -21,14 +21,14 @@ import (
 // Note: a Instance has a 1:1 relation with azure:circ - each Instance has (or, may have)
 // a different set of azure and/or circonus credentials.
 type Instance struct {
-	sync.Mutex
 	ctx       context.Context
 	cfg       *Config
 	check     *circonus.Check
 	lastStart *time.Time
-	logger    zerolog.Logger
 	baseTags  circonus.Tags
-	running   bool
+	logger    zerolog.Logger
+	sync.Mutex
+	running bool
 }
 
 // Start runs the instance based on the configured interval.
@@ -62,7 +62,7 @@ func (inst *Instance) Start() error {
 				continue
 			}
 
-			// calculate one timeseries range for all requests from collectors
+			// calculate one time series range for all requests from collectors
 			start := time.Now()
 
 			inst.lastStart = &start
@@ -97,7 +97,7 @@ func (inst *Instance) collect(endTime time.Time) error {
 	//    c. Reset buffer (so it can be re-used for next resource)
 	//
 	// Given there is no way to know how many metrics/samples will
-	// accutally be received from any given resource. Safer to collect
+	// actually be received from any given resource. Safer to collect
 	// from each resource and submit immediately/independently.
 	// Rather than, collecting all metrics/samples into one buffer and
 	// submitting as one potentially very large, fragile batch.

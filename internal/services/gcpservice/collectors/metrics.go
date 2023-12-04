@@ -42,7 +42,7 @@ func (c *common) processMetrics(projectID, filter string, creds []byte, metricDe
 			break
 		}
 		if err != nil {
-			c.logger.Warn().Err(err).Interface("errval", err).Str("filter", filter).Msg("metric descriptor, iter.next, skipping remainder")
+			c.logger.Warn().Err(err).Interface("err_val", err).Str("filter", filter).Msg("metric descriptor, iter.next, skipping remainder")
 			break
 		}
 		metricDescriptors = append(metricDescriptors, metricDescriptor)
@@ -100,7 +100,7 @@ func (c *common) fetchTimeseries(client *monitoring.MetricClient, projectID, fil
 			break
 		}
 		if err != nil {
-			c.logger.Warn().Err(err).Interface("errval", err).Str("filter", filter).Msg("metric timeseries, iter.next, skipping remainder")
+			c.logger.Warn().Err(err).Interface("err_val", err).Str("filter", filter).Msg("metric timeseries, iter.next, skipping remainder")
 			break
 		}
 		timeSeriesList = append(timeSeriesList, timeSeries)
@@ -110,12 +110,12 @@ func (c *common) fetchTimeseries(client *monitoring.MetricClient, projectID, fil
 	for _, timeSeries := range timeSeriesList {
 		var tags circonus.Tags
 		tags = append(tags, baseTags...)
-		tags = append(tags, circonus.Tag{Category: "resource_type", Value: timeSeries.Resource.GetType()})
-		for k, v := range timeSeries.Resource.GetLabels() {
+		tags = append(tags, circonus.Tag{Category: "resource_type", Value: timeSeries.GetResource().GetType()})
+		for k, v := range timeSeries.GetResource().GetLabels() {
 			// c.logger.Debug().Str("category", k).Msg("adding resource label")
 			tags = append(tags, circonus.Tag{Category: k, Value: v})
 		}
-		for k, v := range timeSeries.Metric.GetLabels() {
+		for k, v := range timeSeries.GetMetric().GetLabels() {
 			if k == "metric_type" {
 				continue
 			}
@@ -127,7 +127,7 @@ func (c *common) fetchTimeseries(client *monitoring.MetricClient, projectID, fil
 		}
 
 		metricType := ""
-		switch timeSeries.ValueType.String() {
+		switch timeSeries.GetValueType().String() {
 		case "DOUBLE":
 			metricType = circonus.MetricTypeFloat64
 		case "INT64":
@@ -135,7 +135,7 @@ func (c *common) fetchTimeseries(client *monitoring.MetricClient, projectID, fil
 		case "STRING":
 			metricType = circonus.MetricTypeString
 		default:
-			c.logger.Warn().Str("type", timeSeries.ValueType.String()).Msg("unmapped metric value type, ignoring")
+			c.logger.Warn().Str("type", timeSeries.GetValueType().String()).Msg("unmapped metric value type, ignoring")
 			continue
 		}
 
@@ -145,13 +145,14 @@ func (c *common) fetchTimeseries(client *monitoring.MetricClient, projectID, fil
 		//       The GCP TimeSeriesList API no longer supports requesting in a specific
 		//       order - the points are returned in (reverse) newest to oldest order.
 		// for _, pt := range timeSeries.Points {
-		for i := len(timeSeries.Points) - 1; i >= 0; i-- {
-			pt := timeSeries.Points[i]
+		pts := timeSeries.GetPoints()
+		for i := len(pts) - 1; i >= 0; i-- {
+			pt := pts[i]
 			if c.done() {
 				break
 			}
 			var value interface{}
-			end := pt.Interval.EndTime
+			end := pt.GetInterval().GetEndTime()
 			ts := time.Unix(end.GetSeconds(), int64(end.GetNanos()))
 			switch metricType {
 			case circonus.MetricTypeFloat64:

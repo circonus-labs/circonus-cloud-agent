@@ -62,9 +62,7 @@ type GCPConfig struct {
 	Enabled bool   `json:"enabled" toml:"enabled" yaml:"enabled"`
 }
 
-//
 // NOTE: adding a Key* MUST be reflected in the Config structures above.
-//
 const (
 	// // KeyAPICAFile custom ca for circonus api (e.g. inside)
 	// KeyAPICAFile = "api.ca_file"

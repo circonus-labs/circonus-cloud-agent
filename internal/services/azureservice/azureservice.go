@@ -47,8 +47,8 @@ var (
 type AzureService struct {
 	groupCtx  context.Context
 	group     *errgroup.Group
-	logger    zerolog.Logger
 	instances []*Instance
+	logger    zerolog.Logger
 	enabled   bool
 }
 
