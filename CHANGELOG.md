@@ -2,6 +2,10 @@
 
 ## v0.3.3
 
+* build(deps): bump google.golang.org/api from 0.149.0 to 0.152.0
+* build(deps): bump github.com/Azure/go-autorest/autorest from 0.9.1 to 0.11.29
+* build(deps): bump github.com/spf13/cobra from 1.2.1 to 1.8.0
+* build(deps): bump github.com/rs/zerolog from 1.25.0 to 1.31.0
 * build: add after hook for `grype` on generated sboms
 * build: add .sbom for archive artifacts and update changelog config
 * fix(lint): deprecated ioutil calls
