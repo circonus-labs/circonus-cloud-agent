@@ -5,7 +5,7 @@ go 1.21
 require (
 	cloud.google.com/go/monitoring v1.16.3
 	github.com/Azure/azure-sdk-for-go v33.1.0+incompatible
-	github.com/Azure/go-autorest/autorest v0.9.1
+	github.com/Azure/go-autorest/autorest v0.11.29
 	github.com/Azure/go-autorest/autorest/adal v0.9.23
 	github.com/alecthomas/units v0.0.0-20210927113745-59d0afb8317a
 	github.com/aws/aws-sdk-go v1.23.17
