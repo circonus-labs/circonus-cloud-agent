@@ -11,7 +11,7 @@ require (
 	github.com/aws/aws-sdk-go v1.48.12
 	github.com/circonus-labs/go-apiclient v0.7.23
 	github.com/golang/protobuf v1.5.3
-	github.com/pelletier/go-toml v1.9.4
+	github.com/pelletier/go-toml v1.9.5
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.31.0
 	github.com/spf13/cobra v1.8.0
