@@ -86,6 +86,7 @@ func (c *EBS) Collect(sess *session.Session, timespan MetricTimespan, baseTags c
 	}
 	metricDimensionName := "VolumeId"
 	for _, volumeInfo := range ebsVolumes {
+		volumeInfo := volumeInfo
 		dims := []*cloudwatch.Dimension{
 			{
 				Name:  &metricDimensionName,
@@ -168,60 +169,60 @@ func (c *EBS) ebsVolumes(sess client.ConfigProvider, baseTags circonus.Tags) ([]
 func (c *EBS) DefaultMetrics() []Metric {
 	return []Metric{
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "VolumeReadBytes",
 				Stats: []string{metricStatMinimum, metricStatMaximum, metricStatAverage, metricStatSum, metricStatSampleCount},
 				Units: "Bytes",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "VolumeWriteBytes",
 				Stats: []string{metricStatMinimum, metricStatMaximum, metricStatAverage, metricStatSum, metricStatSampleCount},
 				Units: "Bytes",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "VolumeReadOps",
 				Stats: []string{metricStatMinimum, metricStatMaximum, metricStatAverage, metricStatSum, metricStatSampleCount},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "VolumeWriteOps",
 				Stats: []string{metricStatMinimum, metricStatMaximum, metricStatAverage, metricStatSum, metricStatSampleCount},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "VolumeTotalReadTime",
 				Stats: []string{metricStatMinimum, metricStatMaximum, metricStatAverage, metricStatSum, metricStatSampleCount},
 				Units: "Seconds",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
@@ -229,63 +230,63 @@ func (c *EBS) DefaultMetrics() []Metric {
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "VolumeTotalWriteTime",
 				Stats: []string{metricStatMinimum, metricStatMaximum, metricStatAverage, metricStatSum, metricStatSampleCount},
 				Units: "Seconds",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "VolumeIdleTime",
 				Stats: []string{metricStatMinimum, metricStatMaximum, metricStatAverage, metricStatSum, metricStatSampleCount},
 				Units: "Seconds",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Name:  "VolumeQueueLength",
 				Stats: []string{metricStatMinimum, metricStatMaximum, metricStatAverage, metricStatSum, metricStatSampleCount},
 				Units: "Count",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 			},
 		},
 		//
-		// Use with provisioned iops ssd volumns only
+		// Use with provisioned iops ssd volumes only
 		//
 		// {
-		// 	AWSMetric{
+		// 	AWSMetric: AWSMetric{
 		// 		Name:  "VolumeThroughputPercentage",
 		// 		Stats: []string{metricStatMinimum, metricStatMaximum, metricStatAverage, metricStatSum, metricStatSampleCount},
 		// 		Units: "Percent",
 		// 	},
-		// 	CirconusMetric{
+		// 	CirconusMetric:CirconusMetric{
 		// 		Name: "",              // NOTE: AWSMetric.Name will be used if blank
 		// 		Type: "gauge",         // (gauge|counter|histogram|text)
 		// 		Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
 		// 	},
 		// },
 		// {
-		// 	AWSMetric{
+		// 	AWSMetric: AWSMetric{
 		// 		Name:  "VolumeConsumedReadWriteOps",
 		// 		Stats: []string{metricStatMinimum, metricStatMaximum, metricStatAverage, metricStatSum, metricStatSampleCount},
 		// 		Units: metricStatSum,
 		// 	},
-		// 	CirconusMetric{
+		// 	CirconusMetric:CirconusMetric{
 		// 		Name: "",              // NOTE: AWSMetric.Name will be used if blank
 		// 		Type: "gauge",         // (gauge|counter|histogram|text)
 		// 		Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
@@ -295,12 +296,12 @@ func (c *EBS) DefaultMetrics() []Metric {
 		// Use with general purpose ssd (gp2), throughput optimized hdd (st1), and cold hdd (sc1) volumes only
 		//
 		// {
-		// 	AWSMetric{
+		// 	AWSMetric: AWSMetric{
 		// 		Name:  "BurstBalance",
 		// 		Stats: []string{metricStatAverage},
 		// 		Units: "Percent",
 		// 	},
-		// 	CirconusMetric{
+		// 	CirconusMetric:CirconusMetric{
 		// 		Name: "",              // NOTE: AWSMetric.Name will be used if blank
 		// 		Type: "gauge",         // (gauge|counter|histogram|text)
 		// 		Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically

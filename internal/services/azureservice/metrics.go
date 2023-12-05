@@ -111,6 +111,8 @@ func (inst *Instance) handleMetricGroup(
 				return nil
 			}
 
+			sample := sample
+
 			err := inst.check.WriteMetricSample(metricDest, encodedMetricName, sample.Type, sample.Value, &sample.Timestamp)
 			if err != nil {
 				inst.logger.Warn().

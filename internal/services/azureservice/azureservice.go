@@ -8,7 +8,6 @@ package azureservice
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -47,8 +46,8 @@ var (
 type AzureService struct {
 	groupCtx  context.Context
 	group     *errgroup.Group
-	logger    zerolog.Logger
 	instances []*Instance
+	logger    zerolog.Logger
 	enabled   bool
 }
 
@@ -131,7 +130,7 @@ func (svc *AzureService) initInstances(confDir string) error {
 		return errors.New("invalid config dir (empty)")
 	}
 
-	entries, err := ioutil.ReadDir(confDir)
+	entries, err := os.ReadDir(confDir)
 	if err != nil {
 		return errors.Wrap(err, "reading AWS config dir")
 	}

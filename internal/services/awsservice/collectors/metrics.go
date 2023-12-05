@@ -38,6 +38,9 @@ func (c *common) metricData(metricDest io.Writer, sess client.ConfigProvider, ti
 		if metricDefinition.AWSMetric.Disabled {
 			continue
 		}
+
+		metricDefinition := metricDefinition
+
 		for _, metricStatName := range metricDefinition.AWSMetric.Stats {
 			metricStatName := metricStatName
 			metricID := fmt.Sprintf(resultIDFormat, metricIdx, metricStatName, metricCount)
@@ -96,7 +99,7 @@ func (c *common) metricData(metricDest io.Writer, sess client.ConfigProvider, ti
 				var metricStat string
 				var metricIdx, queryIdx int
 				if n, err2 := fmt.Sscanf(*result.Id, resultIDFormat, &metricIdx, &metricStat, &queryIdx); err2 != nil {
-					c.logger.Error().Err(err2).Str("result_id", *result.Id).Msg("unable to extract cance/metric IDs from result id")
+					c.logger.Error().Err(err2).Str("result_id", *result.Id).Msg("unable to extract metric IDs from result id")
 					continue
 				} else if n != 2 {
 					c.logger.Error().Int("num_extracted", n).Str("result_id", *result.Id).Msg("unable to extract BOTH instance id and metric id from result id")
@@ -135,7 +138,7 @@ func (c *common) metricData(metricDest io.Writer, sess client.ConfigProvider, ti
 				samples := c.sortMetricDataSamples(result)
 				for _, sample := range samples {
 					if err2 := c.recordMetric(metricDest, metricDefinition, metricStat, sample.Value, sample.TS, metricTags); err2 != nil {
-						c.logger.Warn().Err(err2).Str("aws_metric", metricDefinition.AWSMetric.Name).Msg("recording metric datapoint")
+						c.logger.Warn().Err(err2).Str("aws_metric", metricDefinition.AWSMetric.Name).Msg("recording metric data point")
 					}
 				}
 
@@ -159,7 +162,7 @@ func (c *common) metricData(metricDest io.Writer, sess client.ConfigProvider, ti
 	return nil
 }
 
-// The following is for sorting the timeseries samples
+// The following is for sorting the time series samples
 // returned by aws GetMetricData
 
 type mdSample struct {
@@ -195,6 +198,9 @@ func (c *common) metricStats(metricDest io.Writer, sess client.ConfigProvider, t
 		if metricDefinition.AWSMetric.Disabled {
 			continue
 		}
+
+		metricDefinition := metricDefinition
+
 		stats := make([]*string, len(metricDefinition.AWSMetric.Stats))
 		for i := range metricDefinition.AWSMetric.Stats {
 			stats[i] = &metricDefinition.AWSMetric.Stats[i]

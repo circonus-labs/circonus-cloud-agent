@@ -48,7 +48,7 @@ type AWSCollector struct {
 	Tags            circonus.Tags     `json:"tags" toml:"tags" yaml:"tags"`                   // service tags
 	Metrics         []Metric          `json:"metrics" toml:"metrics" yaml:"metrics"`          // mapping of metrics to collect
 	Disabled        bool              `json:"disabled" toml:"disabled" yaml:"disabled"`       // disable metric collection for this aws service namespace
-	UseGMD          bool              `json:"use_gmd" toml:"use_gmd" yaml:"use_gmd"`          // use getMetricData instead of getMetricStatsistics
+	UseGMD          bool              `json:"use_gmd" toml:"use_gmd" yaml:"use_gmd"`          // use getMetricData instead of getMetricStatistics
 }
 
 // AWSMetric defines an AWS metrics.
@@ -68,8 +68,8 @@ type CirconusMetric struct {
 
 // Metric maps a given metric between AWS and Circonus.
 type Metric struct { //nolint:govet
-	AWSMetric      AWSMetric      `json:"aws" toml:"aws" yaml:"aws"`                // REQUIRED
 	CirconusMetric CirconusMetric `json:"circonus" toml:"circonus" yaml:"circonus"` // REQUIRED
+	AWSMetric      AWSMetric      `json:"aws" toml:"aws" yaml:"aws"`                // REQUIRED
 }
 
 // Filter defines a generic AWS EC2 filter https://docs.aws.amazon.com/sdk-for-go/api/service/ec2/#Filter.
@@ -255,15 +255,15 @@ func ConfigExample() ([]AWSCollector, error) {
 }
 
 type common struct {
-	disableTime  time.Time // time of runtime disabling (will try again every hour)
+	disableTime  time.Time
 	ctx          context.Context
 	check        *circonus.Check
 	id           string
-	disableCause string // cause of a runtime disabling of the collector
-	logger       zerolog.Logger
+	disableCause string
 	metrics      []Metric
 	tags         circonus.Tags
 	dimensions   []*cloudwatch.Dimension
+	logger       zerolog.Logger
 	useGMD       bool
 	enabled      bool
 }
@@ -354,7 +354,7 @@ func (c *common) Enabled() bool {
 	return false
 }
 
-// ID returns the colletor's string id/name (e.g. used in logging by the instance using the collector).
+// ID returns the collector's string id/name (e.g. used in logging by the instance using the collector).
 func (c *common) ID() string {
 	return c.id
 }

@@ -114,17 +114,17 @@ func ConfigExample() ([]GCPCollector, error) {
 }
 
 type common struct {
-	tsStart      time.Time // timeseries interval start
-	tsEnd        time.Time // timeseries interval end
+	tsStart      time.Time
+	tsEnd        time.Time
 	ctx          context.Context
-	disableTime  *time.Time // time of runtime disabling (will try again every hour)
+	disableTime  *time.Time
 	check        *circonus.Check
 	filter       Filter
 	id           string
-	disableCause string // cause of a runtime disabling of the collector
-	logger       zerolog.Logger
+	disableCause string
 	tags         circonus.Tags
-	interval     time.Duration // collection polling interval
+	logger       zerolog.Logger
+	interval     time.Duration
 	enabled      bool
 }
 

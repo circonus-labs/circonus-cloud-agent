@@ -39,13 +39,13 @@ func newKMS(ctx context.Context, check *circonus.Check, cfg *AWSCollector, logge
 func (c *KMS) DefaultMetrics() []Metric {
 	return []Metric{
 		{
-			AWSMetric{
+			AWSMetric: AWSMetric{
 				Disabled: false,
 				Name:     "SecondsUntilKeyMaterialExpiration",
 				Stats:    []string{metricStatMinimum},
 				Units:    "Seconds",
 			},
-			CirconusMetric{
+			CirconusMetric: CirconusMetric{
 				Name: "",              // NOTE: AWSMetric.Name will be used if blank
 				Type: "gauge",         // (gauge|counter|histogram|text)
 				Tags: circonus.Tags{}, // NOTE: units:strings.ToLower(AWSMetric.Units) is added automatically
