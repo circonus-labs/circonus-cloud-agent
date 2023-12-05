@@ -54,3 +54,5 @@ etc/gcp_test
 
 # ignore devnotes
 NOTES.md
+
+.envrc
