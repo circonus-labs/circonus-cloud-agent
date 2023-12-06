@@ -1,5 +1,16 @@
 # unreleased
 
+## v0.3.4
+
+* build(deps): bump github.com/circonus-labs/go-apiclient from 0.7.23 to 0.7.24
+* build(deps): bump github.com/aws/aws-sdk-go from 1.48.12 to 1.48.13
+* build(deps): bump google.golang.org/api from 0.152.0 to 0.153.0
+* build(deps): bump github.com/spf13/viper from 1.9.0 to 1.17.0
+* build(deps): bump github.com/pelletier/go-toml from 1.9.4 to 1.9.5
+* build(deps): bump github.com/aws/aws-sdk-go from 1.23.17 to 1.48.12
+* feat: add codecov support
+* chore: ignore env file
+
 ## v0.3.3
 
 * build(deps): bump google.golang.org/api from 0.149.0 to 0.152.0
