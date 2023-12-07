@@ -19,13 +19,13 @@ import (
 
 // Instance defines a specific gcp service instance for collecting metrics.
 type Instance struct {
+	logger     zerolog.Logger
 	ctx        context.Context
 	cfg        *Config
 	check      *circonus.Check
 	lastStart  *time.Time
 	collectors []collectors.Collector
 	baseTags   circonus.Tags
-	logger     zerolog.Logger
 	sync.Mutex
 	running bool
 }

@@ -114,6 +114,7 @@ func ConfigExample() ([]GCPCollector, error) {
 }
 
 type common struct {
+	logger       zerolog.Logger
 	tsStart      time.Time
 	tsEnd        time.Time
 	ctx          context.Context
@@ -123,7 +124,6 @@ type common struct {
 	id           string
 	disableCause string
 	tags         circonus.Tags
-	logger       zerolog.Logger
 	interval     time.Duration
 	enabled      bool
 }

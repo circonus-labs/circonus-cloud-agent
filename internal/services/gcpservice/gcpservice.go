@@ -50,10 +50,10 @@ var (
 
 // GCPService defines the GCP cloud service client.
 type GCPService struct {
+	logger    zerolog.Logger
 	groupCtx  context.Context
 	group     *errgroup.Group
 	instances []*Instance
-	logger    zerolog.Logger
 	enabled   bool
 }
 
@@ -146,6 +146,8 @@ func (svc *GCPService) initInstances(confDir string) error {
 	}
 
 	for _, entry := range entries {
+		entry := entry
+
 		if entry.IsDir() {
 			continue
 		}
