@@ -3,7 +3,7 @@ module github.com/circonus-labs/circonus-cloud-agent
 go 1.21
 
 require (
-	cloud.google.com/go/monitoring v1.16.3
+	cloud.google.com/go/monitoring v1.17.0
 	github.com/Azure/azure-sdk-for-go v33.1.0+incompatible
 	github.com/Azure/go-autorest/autorest v0.11.29
 	github.com/Azure/go-autorest/autorest/adal v0.9.23
