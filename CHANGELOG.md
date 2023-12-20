@@ -1,5 +1,23 @@
 # unreleased
 
+## v0.3.5
+
+* build(deps): CVE-2023-48795 Moderate severity / GHSA-45x7-px36-x8w8 -- bump golang.org/x/crypto from v0.16.0 to 0.17.0
+* build(deps): bump github.com/aws/aws-sdk-go from 1.49.5 to 1.49.6
+* build(deps): bump github.com/aws/aws-sdk-go from 1.49.4 to 1.49.5
+* build(deps): bump github.com/spf13/viper from 1.18.1 to 1.18.2
+* build(deps): bump github.com/aws/aws-sdk-go from 1.49.3 to 1.49.4
+* build(deps): bump github.com/aws/aws-sdk-go from 1.49.2 to 1.49.3
+* build(deps): bump cloud.google.com/go/monitoring from 1.16.3 to 1.17.0
+* build(deps): bump google.golang.org/api from 0.153.0 to 0.154.0
+* build(deps): bump github.com/aws/aws-sdk-go from 1.48.16 to 1.49.2
+* build(deps): bump github.com/aws/aws-sdk-go from 1.48.15 to 1.48.16
+* build(deps): bump github.com/spf13/viper from 1.18.0 to 1.18.1
+* build(deps): bump github.com/aws/aws-sdk-go from 1.48.14 to 1.48.15
+* fix(lint): struct alignment
+* build(deps): bump github.com/spf13/viper from 1.17.0 to 1.18.0
+* build(deps): bump github.com/aws/aws-sdk-go from 1.48.13 to 1.48.14
+
 ## v0.3.4
 
 * build(deps): bump github.com/circonus-labs/go-apiclient from 0.7.23 to 0.7.24
