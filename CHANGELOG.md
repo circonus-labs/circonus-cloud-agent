@@ -1,5 +1,13 @@
 # unreleased
 
+## v0.3.6
+
+* build(deps): bump google.golang.org/api from 0.154.0 to 0.156.0
+* build(deps): bump golang.org/x/oauth2 from 0.15.0 to 0.16.0
+* build(deps): bump golang.org/x/sys from 0.15.0 to 0.16.0
+* build(deps): bump golang.org/x/sync from 0.5.0 to 0.6.0
+* build(deps): bump github.com/aws/aws-sdk-go from 1.49.6 to 1.49.19
+
 ## v0.3.5
 
 * build(deps): CVE-2023-48795 Moderate severity / GHSA-45x7-px36-x8w8 -- bump golang.org/x/crypto from v0.16.0 to 0.17.0
