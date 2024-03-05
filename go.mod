@@ -8,7 +8,7 @@ require (
 	github.com/Azure/go-autorest/autorest v0.11.29
 	github.com/Azure/go-autorest/autorest/adal v0.9.23
 	github.com/alecthomas/units v0.0.0-20210927113745-59d0afb8317a
-	github.com/aws/aws-sdk-go v1.49.24
+	github.com/aws/aws-sdk-go v1.50.31
 	github.com/circonus-labs/go-apiclient v0.7.24
 	github.com/golang/protobuf v1.5.3
 	github.com/pelletier/go-toml v1.9.5
